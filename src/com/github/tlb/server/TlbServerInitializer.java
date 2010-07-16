@@ -29,6 +29,12 @@ public class TlbServerInitializer extends ServerInitializer {
     }
 
     protected Restlet application() {
+        Context applicationContext = new Context();
+        initializeApplicationContext(applicationContext);
+        return new TlbApplication(applicationContext);
+    }
+
+    public void initializeApplicationContext(Context applicationContext) {
         HashMap<String, Object> appMap = new HashMap<String, Object>();
         final EntryRepoFactory repoFactory = repoFactory();
 
@@ -42,9 +48,7 @@ public class TlbServerInitializer extends ServerInitializer {
 
         repoFactory.registerExitHook();
         appMap.put(TlbConstants.Server.REPO_FACTORY, repoFactory);
-        Context applicationContext = new Context();
         applicationContext.setAttributes(appMap);
-        return new TlbApplication(applicationContext);
     }
 
     @Override
