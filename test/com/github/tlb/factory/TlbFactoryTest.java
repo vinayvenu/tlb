@@ -48,14 +48,14 @@ public class TlbFactoryTest {
             TlbFactory.getCriteria("com.thoughtworks.cruise.tlb.MissingCriteria", env("com.github.tlb.service.TalkToCruise"));
             fail("should not be able to create random criteria!");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("Unable to locate Criteria class 'com.thoughtworks.cruise.tlb.MissingCriteria'"));
+            assertThat(e.getMessage(), is("Unable to locate class 'com.thoughtworks.cruise.tlb.MissingCriteria'"));
         }
 
         try {
             TlbFactory.getOrderer("com.thoughtworks.cruise.tlb.MissingOrderer", env("com.github.tlb.service.TalkToCruise"));
             fail("should not be able to create random orderer!");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("Unable to locate Criteria class 'com.thoughtworks.cruise.tlb.MissingOrderer'"));
+            assertThat(e.getMessage(), is("Unable to locate class 'com.thoughtworks.cruise.tlb.MissingOrderer'"));
         }
     }
 

@@ -39,7 +39,7 @@ public class TlbFactory<T> {
             }
             return getInstance((Class<? extends T>) criteriaClass, environment);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Unable to locate Criteria class '" + klassName + "'");
+            throw new IllegalArgumentException("Unable to locate class '" + klassName + "'");
         }
     }
 
