@@ -11,27 +11,6 @@ Given a test suite, *TLB* splits it into a given number of mutually exclusive un
 
 *TLB*, comes with 3 criteria. 
 
-### Count Based Criterion:
-This criterion splits the test suite into a given number of units such that each unit has an equal or optimally equal number of tests.
-
-#### For example: 
-  * 20 tests and 1 unit => 1 unit with 20 tests.
-  * 18 tests and 3 units => 3 units with 6 tests.
-  * 39 tests and 6 units => 3 units with 6 tests and 3 units with 7 tests each. 
-
-### Time Based Criterion:
-This criterion splits the test suite into a given number of units such that each unit when executed takes the same or optimally same amount of time. For the very first run with this criterion, *TLB* uses count based approach and writes the test times along with the test time and publishes it to a central repository. On subsequent runs, it uses this to figure how to split the test suite. 
-
-#### For example:
-  * 20 tests and 1 unit => 1 unit with 20 tests.
-  * 10 tests and 2 units with each taking 2 minutes => 2 units with 5 tests each taking 10 minutes each.
-  * 18 tests and 3 units, with 1 taking 13 minutes and rest taking 1 minute => 1 unit with the 13 minute test, 1 unit with 9 tests taking 9 minutes, 1 unit with 8 tests taking 8 minutes. 
-
-### Composite Criterion:
-This criterion delegates to a criteria chain, trying criterion in order, until it exhausts the last one. This is generally the way we use 'time based' setup. We make a chain of 'time based splitter' followed by 'count based splitter' so if time based splitting fails, which may happen because a server(the whiteboard tlb runs against) holding artifact with test times is down or the artifact file doesn't exist, it defaults to 'count balancing' which doesn't require the 'test suite time' artifact. If all criterion in the chain fail, the build fails. This is preferred way of using 'time based criterion'.
-
-The test split criteria is passed in using the environment variable *TLB_CRITERIA*. This is a comma separated list of fully qualified names of criteria classes. If nothing is mentioned, *TLB* by default uses a criteria that doesn't do any balancing at all. 
-
 ## Ordering tests:
   *TLB*, along with load balancing can also set the order in which the tests get executed. This can be a useful feature. For instance one can execute the tests which failed in the previous run first, before running other tests. Leveraging the fact that tests are not dependent, ordering can be used to do nifty things. However, this should not be misused so as to run tests in a given order.
  *TLB* has 1 built-in Orderer – FailedTestFirst orderer. This runs the test that are known to have failed in the previous run first, before running the remaining tests. *TLB* along with the test times also writes the test status, and uploads that to the central repository. Using this information, it runs the failed tests first in the subsequent runs.
