@@ -3,18 +3,8 @@ A typical problem that teams doing CI (continuous integration) try and solve is 
 
 **TestLoadBalancer (TLB)** aims at splitting your entire test suite into mutually exclusive units such that each of the unit can be executed in parallel. Assuming that tests are written independent of each other, which is a best practice in writing tests, the tests can be ordered and arranged in anyway and *TLB* leverages this fact in order to split the test suite and reorder the tests.
 
-# Concepts:
-*TLB* has 2 main concepts.
-
-## Splitting tests: 
-Given a test suite, *TLB* splits it into a given number of mutually exclusive units based on one or a chain of criteria. For example, if a test suite has a total of 40 tests and it needs to be split into 4 units, a potential split could be: 10, 8, 8 and 14 tests or 10 in each of the 4 units. The splits need not be equal and it is completely governed by the criteria. 
-
-*TLB*, comes with 3 criteria. 
-
-## Ordering tests:
-  *TLB*, along with load balancing can also set the order in which the tests get executed. This can be a useful feature. For instance one can execute the tests which failed in the previous run first, before running other tests. Leveraging the fact that tests are not dependent, ordering can be used to do nifty things. However, this should not be misused so as to run tests in a given order.
- *TLB* has 1 built-in Orderer – FailedTestFirst orderer. This runs the test that are known to have failed in the previous run first, before running the remaining tests. *TLB* along with the test times also writes the test status, and uploads that to the central repository. Using this information, it runs the failed tests first in the subsequent runs.
-  The ordering criterion is passed in using the environment variable *TLB_ORDERER*. This is a comma separated list of fully qualified names of orderer classes. If nothing is mentioned, *TLB* does not order the tests.
+# Documentation:
+Detailed documentation of TLB concepts and configuration options is available in the [TLB wiki](http://wiki.github.com/janmejay/tlb).
 
 # Supported Frameworks:
  *TLB* assumes that a test framework provides an option to specify a list of file resources that gets executed. The initial list is passed to the criteria chain. Splitter criterion prunes the file resource list and passes on to the test running framework to run.
