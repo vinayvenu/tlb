@@ -17,7 +17,7 @@ public class Main {
         }
     }
 
-    protected ServerInitializer restletInitializer(SystemEnvironment environment) {
+    ServerInitializer restletInitializer(SystemEnvironment environment) {
         return TlbFactory.getRestletLauncher(environment.getProperty(TlbConstants.TLB_APP), environment);
     }
 }

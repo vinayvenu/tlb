@@ -37,6 +37,7 @@ public interface TlbConstants {
 
     public interface Balancer {
         static final String TLB_BALANCER_PORT = "TLB_BALANCER_PORT";
+        static final String QUERY = "query";
     }
 
     public interface Server {

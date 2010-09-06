@@ -152,6 +152,22 @@
         </junit>
     </target>
 
+    <target name="run_balancer" depends="compile">
+        <java classname="com.github.tlb.Main" fork="true">
+            <env key="TLB_URL" value="http://localhost:7019"/>
+            <env key="TLB_JOB_NAME" value="foo"/>
+            <env key="PARTITION_NUMBER" value="1"/>
+            <env key="TOTAL_PARTITIONS" value="2"/>
+            <env key="JOB_VERSION" value="1.1"/>
+            <env key="TLB_CRITERIA" value="com.github.tlb.splitter.CountBasedTestSplitterCriteria"/>
+            <env key="TALK_TO_SERVICE" value="com.github.tlb.service.TalkToTlbServer"/>
+            <env key="TLB_BALANCER_PORT" value="${random.balancer.port}"/>
+            <env key="TLB_APP" value="com.github.tlb.balancer.BalancerInitializer"/>
+            
+            <classpath refid="src.classpath"/>
+        </java>
+    </target>
+
     <target name="coverage" depends="emma.instr, test">
         <emma enabled="true">
             <report sort="+name" metrics="method:85,block:90,line:90,class:90" sourcepath="${src.dir}">

@@ -1,5 +1,6 @@
 package com.github.tlb.balancer;
 
+import com.github.tlb.TlbConstants;
 import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.Restlet;
@@ -24,6 +25,7 @@ public class TlbClient extends Application {
         router.attach("/balance", BalancerResource.class);
         router.attach("/suite_time", SuiteTimeReporter.class);
         router.attach("/suite_result", SuiteResultReporter.class);
+        router.attach(String.format("/control/{%s}", TlbConstants.Balancer.QUERY), ControlResource.class);
 
         return router;
     }
