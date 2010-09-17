@@ -1,21 +1,20 @@
 package com.github.tlb.balancer;
 
-import com.github.tlb.Main;
 import com.github.tlb.TlbConstants;
-import com.github.tlb.utils.FileUtil;
-import com.github.tlb.utils.SystemEnvironment;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restlet.Component;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
+import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 
 import java.io.File;
@@ -24,10 +23,10 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -36,6 +35,7 @@ public class ControlResourceTest {
     protected Response res;
     protected ControlResource resource;
     protected HashMap<String, Object> attributes;
+    protected Component component;
 
     @Before
     public void setUp() {
@@ -43,7 +43,17 @@ public class ControlResourceTest {
         res = mock(Response.class);
         attributes = new HashMap<String, Object>();
         when(req.getAttributes()).thenReturn(attributes);
-        resource = new ControlResource(new Context(), req, res);
+        final Context context = new Context();
+        final HashMap<String, Object> contextMap = new HashMap<String, Object>();
+        component = mock(Component.class);
+        contextMap.put(TlbClient.APP_COMPONENT, component);
+        context.setAttributes(contextMap);
+        resource = new ControlResource(context, req, res);
+    }
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(component);
     }
 
     @Test
@@ -67,6 +77,19 @@ public class ControlResourceTest {
     @Test
     public void shouldAllowGet() {
         assertThat(resource.allowGet(), is(true));
+    }
+
+//    @Test
+//    public void shouldStopTheAppComponentOnSuicide() throws Exception {
+//        attributes.put(TlbConstants.Balancer.QUERY, ControlResource.Query.suicide.toString());
+//        assertThat(resource.represent(new Variant(MediaType.TEXT_PLAIN)).getText(), is("HALTING"));
+//        resource.suicideThread().join();
+//        verify(component).stop();
+//    }
+
+    @Test
+    public void shouldSuicideThreadShouldBeCached() {
+        assertThat(resource.suicideThread(), sameInstance(resource.suicideThread()));
     }
 
     @Test
@@ -101,11 +124,9 @@ public class ControlResourceTest {
                 //ignore
             }
         }
-        try {
-            client.executeMethod(suicide);
-        } catch (IOException e) {
-            //ignore
-        }
+
+        assertThat(client.executeMethod(suicide), is(200));
+        assertThat(suicide.getResponseBodyAsString(), is("HALTING"));
         assertThat(process.waitFor(), is(0));
         shouldRun[0] = false;
     }

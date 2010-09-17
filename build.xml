@@ -163,7 +163,7 @@
             <env key="TALK_TO_SERVICE" value="com.github.tlb.service.TalkToTlbServer"/>
             <env key="TLB_BALANCER_PORT" value="${random.balancer.port}"/>
             <env key="TLB_APP" value="com.github.tlb.balancer.BalancerInitializer"/>
-            
+
             <classpath refid="src.classpath"/>
         </java>
     </target>

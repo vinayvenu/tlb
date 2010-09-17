@@ -30,6 +30,7 @@ public class BalancerInitializer extends ServerInitializer {
         appMap.put(TlbClient.SPLITTER, TlbFactory.getCriteria(env.getProperty(TlbConstants.TLB_CRITERIA), env));
         appMap.put(TlbClient.ORDERER, TlbFactory.getOrderer(env.getProperty(TlbConstants.TLB_ORDERER), env));
         appMap.put(TlbClient.TALK_TO_SERVICE, TlbFactory.getTalkToService(env));
+        appMap.put(TlbClient.APP_COMPONENT, init());
         Context applicationContext = new Context();
         applicationContext.setAttributes(appMap);
         return new TlbClient(applicationContext);
