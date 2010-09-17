@@ -79,16 +79,8 @@ public class ControlResourceTest {
         assertThat(resource.allowGet(), is(true));
     }
 
-//    @Test
-//    public void shouldStopTheAppComponentOnSuicide() throws Exception {
-//        attributes.put(TlbConstants.Balancer.QUERY, ControlResource.Query.suicide.toString());
-//        assertThat(resource.represent(new Variant(MediaType.TEXT_PLAIN)).getText(), is("HALTING"));
-//        resource.suicideThread().join();
-//        verify(component).stop();
-//    }
-
     @Test
-    public void shouldSuicideThreadShouldBeCached() {
+    public void suicideThreadShouldBeCached() {
         assertThat(resource.suicideThread(), sameInstance(resource.suicideThread()));
     }
 
