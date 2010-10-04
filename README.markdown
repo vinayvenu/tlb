@@ -11,18 +11,7 @@ Currently, *TLB* supports:
 
   * JUnit using Ant & Buildr
   * [Twist™](http://www.thoughtworks-studios.com/agile-test-automation "ThoughtWorks Studios - Twist") using Ant & Buildr
-  * Experimental support for RSpec using Rake. Checkout the ["tlb_rb"](http://github.com/janmejay/tlb_rb)
-
-# Adding support for a new frameworks:
-## Testing framework
-*TLB* assumes that a test framework provides an option to specify a list of file resources that get executed. The initial list is passed to the criteria chain. Splitter criterion prunes the file resource list. After this the list of the file resources is passed through the orderer, where it gets reordered. The contract is that the orderer does not change the number of file resources.
-
-The final list of file resources is what is fed into the test framework for execution.
-
-Once the tests are executed, *TLB* needs a way to capture the test result and the time a test took to execute in order to report to the *TLB Server*. Without this, the orderer and the TimeBasedCriteria will not work.
-
-## Build tool
-Supporting other build tools is a matter of implementing the end user interface which delegate to the Splitter and Orderer.
+  * Experimental support for RSpec using Rake. Checkout ["tlb_rb"](http://github.com/janmejay/tlb_rb)
 
 # Contributors:
 ### Core Team:
