@@ -7,13 +7,21 @@ A typical problem that teams doing CI (continuous integration) try and solve is 
 Detailed documentation of TLB concepts and configuration options is available in the [TLB wiki](http://wiki.github.com/janmejay/tlb).
 
 # Supported Frameworks:
- *TLB* assumes that a test framework provides an option to specify a list of file resources that gets executed. The initial list is passed to the criteria chain. Splitter criterion prunes the file resource list and passes on to the test running framework to run.
+Currently, *TLB* supports:
+ * JUnit using Ant & Buildr
+ * [Twist™](http://www.thoughtworks-studios.com/agile-test-automation "ThoughtWorks Studios - Twist") using Ant & Buildr
+ * Experimental support for RSpec using Rake. Checkout the ["tlb_rb"](http://github.com/janmejay/tlb_rb)
 
-After this the list of the file resources is passed through the orderer, where it gets reordered. The contract is that the orderer does not change the number of file resources. 
+# Adding support for a new frameworks:
+## Testing framework
+*TLB* assumes that a test framework provides an option to specify a list of file resources that get executed. The initial list is passed to the criteria chain. Splitter criterion prunes the file resource list. After this the list of the file resources is passed through the orderer, where it gets reordered. The contract is that the orderer does not change the number of file resources.
 
-The final list of file resources is what is fed into the test framework. 
+The final list of file resources is what is fed into the test framework for execution.
 
-As of now, *TLB* supports running JUnit tests using Ant and Buildr(which uses underlying ant infrastructure). We are in the process of adding support for load balancing [Twist™](http://www.thoughtworks-studios.com/agile-test-automation "ThoughtWorks Studios - Twist") again running on ant/buildr. Supporting other build tools testing frameworks is a matter of implementing the end user interface which delegate to the Splitter and Orderer.
+Once the tests are executed, *TLB* needs a way to capture the test result and the time a test took to execute in order to report to the *TLB Server*. Without this, the orderer and the TimeBasedCriteria will not work.
+
+## Build tool
+Supporting other build tools is a matter of implementing the end user interface which delegate to the Splitter and Orderer.
 
 # Contributors:
 ### Core Team:
