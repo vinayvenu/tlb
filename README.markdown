@@ -8,9 +8,10 @@ Detailed documentation of TLB concepts and configuration options is available in
 
 # Supported Frameworks:
 Currently, *TLB* supports:
- * JUnit using Ant & Buildr
- * [Twist™](http://www.thoughtworks-studios.com/agile-test-automation "ThoughtWorks Studios - Twist") using Ant & Buildr
- * Experimental support for RSpec using Rake. Checkout the ["tlb_rb"](http://github.com/janmejay/tlb_rb)
+
+  * JUnit using Ant & Buildr
+  * [Twist™](http://www.thoughtworks-studios.com/agile-test-automation "ThoughtWorks Studios - Twist") using Ant & Buildr
+  * Experimental support for RSpec using Rake. Checkout the ["tlb_rb"](http://github.com/janmejay/tlb_rb)
 
 # Adding support for a new frameworks:
 ## Testing framework
