@@ -7,13 +7,11 @@ A typical problem that teams doing CI (continuous integration) try and solve is 
 Detailed documentation of TLB concepts and configuration options is available in the [TLB wiki](http://wiki.github.com/janmejay/tlb).
 
 # Supported Frameworks:
- *TLB* assumes that a test framework provides an option to specify a list of file resources that gets executed. The initial list is passed to the criteria chain. Splitter criterion prunes the file resource list and passes on to the test running framework to run.
+Currently, *TLB* supports:
 
-After this the list of the file resources is passed through the orderer, where it gets reordered. The contract is that the orderer does not change the number of file resources. 
-
-The final list of file resources is what is fed into the test framework. 
-
-As of now, *TLB* supports running JUnit tests using Ant and Buildr(which uses underlying ant infrastructure). We are in the process of adding support for load balancing [Twist™](http://www.thoughtworks-studios.com/agile-test-automation "ThoughtWorks Studios - Twist") again running on ant/buildr. Supporting other build tools testing frameworks is a matter of implementing the end user interface which delegate to the Splitter and Orderer.
+  * JUnit using Ant & Buildr
+  * [Twist™](http://www.thoughtworks-studios.com/agile-test-automation "ThoughtWorks Studios - Twist") using Ant & Buildr
+  * Experimental support for RSpec using Rake. Checkout ["tlb_rb"](http://github.com/janmejay/tlb_rb)
 
 # Contributors:
 ### Core Team:
