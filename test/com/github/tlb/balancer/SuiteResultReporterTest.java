@@ -19,9 +19,7 @@ import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SuiteResultReporterTest {
     protected SuiteResultReporter reporter;
@@ -56,11 +54,26 @@ public class SuiteResultReporterTest {
     }
 
     @Test
-    public void shouldReportSuiteTimeToTalkToServiceImpl() throws ResourceException {
+    public void shouldReportSuiteResultToServiceImpl() throws ResourceException {
         reporter.acceptRepresentation(new StringRepresentation("foo/bar/Baz.class: true"));
         verify(toService).testClassFailure("foo/bar/Baz.class", true);
         reporter.acceptRepresentation(new StringRepresentation("foo/bar/Quux.class: false"));
         verify(toService).testClassFailure("foo/bar/Quux.class", false);
+    }
+    
+    @Test
+    public void shouldReportBatchedSuiteResultOverToServiceImpl() throws ResourceException {
+        reporter.acceptRepresentation(new StringRepresentation("foo/bar/Baz.class: true\nbar/Baz.class: false\ncom/foo/bar/Bar.class: true\nfoo/bar/Quux.class: false\n"));
+        verify(toService).testClassFailure("foo/bar/Baz.class", true);
+        verify(toService).testClassFailure("bar/Baz.class", false);
+        verify(toService).testClassFailure("com/foo/bar/Bar.class", true);
+        verify(toService).testClassFailure("foo/bar/Quux.class", false);
+    }
+
+    @Test
+    public void shouldNotFailWhileTryingToReportEmptySuiteResultOverToServiceImpl() throws ResourceException {
+        reporter.acceptRepresentation(new StringRepresentation(""));
+        verify(toService, never()).testClassFailure(any(String.class), anyBoolean());
     }
 
     @Test
@@ -76,7 +89,7 @@ public class SuiteResultReporterTest {
             assertThat(e.getCause(), sameInstance((Throwable) exception));
         }
         logFixture.stopListening();
-        logFixture.assertHeard("could not report test time: 'test exception'");
+        logFixture.assertHeard("could not report test result: 'test exception'");
         logFixture.assertHeardException(exception);
     }
 }

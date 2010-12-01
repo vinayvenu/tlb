@@ -12,6 +12,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,8 +33,10 @@ public class SuiteTimeReporter extends Resource {
     @Override
     public void acceptRepresentation(Representation entity) throws ResourceException {
         try {
-            final SuiteTimeEntry entry = SuiteTimeEntry.parseSingleEntry(entity.getText());
-            talkToService.testClassTime(entry.getName(), entry.getTime());
+            final List<SuiteTimeEntry> entries = SuiteTimeEntry.parse(entity.getText());
+            for (SuiteTimeEntry entry : entries) {
+                talkToService.testClassTime(entry.getName(), entry.getTime());
+            }
         } catch (IOException e) {
             logger.log(Level.WARNING, String.format("could not report test time: '%s'", e.getMessage()), e);
             throw new RuntimeException(e);

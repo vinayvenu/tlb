@@ -19,9 +19,7 @@ import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SuiteTimeReporterTest {
     protected SuiteTimeReporter reporter;
@@ -56,9 +54,24 @@ public class SuiteTimeReporterTest {
     }
 
     @Test
-    public void shouldReportSuiteTimeToTalkToServiceImpl() throws ResourceException {
+    public void shouldReportSuiteTimeOverToServiceImpl() throws ResourceException {
         reporter.acceptRepresentation(new StringRepresentation("com/foo/Foo.class: 103"));
         verify(toService).testClassTime("com/foo/Foo.class", 103l);
+    }
+
+    @Test
+    public void shouldReportBatchedSuiteTimeReportingOverToServiceImpl() throws ResourceException {
+        reporter.acceptRepresentation(new StringRepresentation("com/foo/Foo.class: 103\ncom/bar/Bar.class: 89\ncom/baz/Quux.class: 17\nfoo/bar/Baz.class: 134"));
+        verify(toService).testClassTime("com/foo/Foo.class", 103l);
+        verify(toService).testClassTime("com/bar/Bar.class", 89l);
+        verify(toService).testClassTime("com/baz/Quux.class", 17l);
+        verify(toService).testClassTime("foo/bar/Baz.class", 134l);
+    }
+    
+    @Test
+    public void shouldNotFailForBatchedSuiteTimeReportingWithNoEntries() throws ResourceException {
+        reporter.acceptRepresentation(new StringRepresentation(""));
+        verify(toService, never()).testClassTime(any(String.class), anyLong());
     }
 
     @Test
@@ -68,7 +81,7 @@ public class SuiteTimeReporterTest {
         when(representation.getText()).thenThrow(exception);
         logFixture.startListening();
         try {
-            reporter.acceptRepresentation(representation);
+        reporter.acceptRepresentation(representation);
             fail("should have exceptioned");
         } catch (RuntimeException e) {
             assertThat(e.getCause(), sameInstance((Throwable) exception));
