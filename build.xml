@@ -111,7 +111,7 @@
                 <include name="commons-logging.properties"/>
             </fileset>
             <manifest>
-                <attribute name="Main-Class" value="com.github.tlb.Main"/>
+                <attribute name="Main-Class" value="tlb.Main"/>
             </manifest>
         </jar>
 
@@ -153,16 +153,16 @@
     </target>
 
     <target name="run_balancer" depends="compile">
-        <java classname="com.github.tlb.Main" fork="true">
+        <java classname="tlb.Main" fork="true">
             <env key="TLB_URL" value="http://localhost:7019"/>
             <env key="TLB_JOB_NAME" value="foo"/>
             <env key="PARTITION_NUMBER" value="1"/>
             <env key="TOTAL_PARTITIONS" value="2"/>
             <env key="JOB_VERSION" value="1.1"/>
-            <env key="TLB_CRITERIA" value="com.github.tlb.splitter.CountBasedTestSplitterCriteria"/>
-            <env key="TALK_TO_SERVICE" value="com.github.tlb.service.TalkToTlbServer"/>
+            <env key="TLB_CRITERIA" value="tlb.splitter.CountBasedTestSplitterCriteria"/>
+            <env key="TALK_TO_SERVICE" value="tlb.service.TalkToTlbServer"/>
             <env key="TLB_BALANCER_PORT" value="${random.balancer.port}"/>
-            <env key="TLB_APP" value="com.github.tlb.balancer.BalancerInitializer"/>
+            <env key="TLB_APP" value="tlb.balancer.BalancerInitializer"/>
 
             <classpath refid="src.classpath"/>
         </java>
@@ -181,7 +181,7 @@
     </target>
 
     <target name="test.count_balanced" depends="package, compile-tests">
-        <typedef name="load-balanced-fileset" classname="com.github.tlb.ant.LoadBalancedFileSet" classpathref="dog.food.classpath"/>
+        <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet" classpathref="dog.food.classpath"/>
         <junit failureproperty="test.failure" printsummary="yes" haltonfailure="true" haltonerror="true" showoutput="true" fork="true">
             <classpath refid="test.classpath"/>
             <batchtest todir="${reports.dir}">
@@ -192,12 +192,12 @@
     </target>
 
     <target name="test.time_balanced" depends="package, compile-tests">
-        <typedef name="load-balanced-fileset" classname="com.github.tlb.ant.LoadBalancedFileSet" classpathref="dog.food.classpath"/>
+        <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet" classpathref="dog.food.classpath"/>
         <junit failureproperty="test.failure" printsummary="yes" haltonfailure="true" haltonerror="true" showoutput="true" fork="true">
             <classpath refid="test.classpath"/>
             <batchtest todir="${reports.dir}">
                 <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class"/>
-                <formatter classname="com.github.tlb.ant.JunitDataRecorder"/>
+                <formatter classname="org.tlb.antataRecorder"/>
                 <formatter type="plain"/>
             </batchtest>
         </junit>
@@ -209,19 +209,19 @@
             These tests are meant to play dummy 'to be run' tests, that tlb is being used to balance.
             These do not test much themselfs.
         </description>
-        <typedef name="load-balanced-fileset" classname="com.github.tlb.ant.LoadBalancedFileSet" classpathref="dog.food.classpath"/>
+        <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet" classpathref="dog.food.classpath"/>
         <junit failureproperty="test.failure" printsummary="yes" haltonfailure="true" haltonerror="true" showoutput="true" fork="true">
             <classpath refid="integration-test.classpath"/>
             <batchtest todir="${reports.dir}">
                 <load-balanced-fileset dir="${integration-test-classes.dir}" includes="**/*Test.class"/>
-                <formatter classname="com.github.tlb.ant.JunitDataRecorder"/>
+                <formatter classname="tlb.ant.JunitDataRecorder"/>
                 <formatter type="plain"/>
             </batchtest>
         </junit>
     </target>
 
     <target name="server" depends="package.jar">
-        <java fork="true" classname="com.github.tlb.Main">
+        <java fork="true" classname="tlb.Main">
             <classpath path="${tlb_jar}"/>
             <classpath refid="dependencies"/>
         </java>
