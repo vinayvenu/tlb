@@ -20,7 +20,7 @@ public class SystemEnvironment {
         this(System.getenv());
     }
 
-    public String getProperty(String key) {
+    public String val(String key) {
         String value = variables.get(key);
         value = substituteRefs(value);
         return value;
@@ -31,13 +31,13 @@ public class SystemEnvironment {
         final Matcher matcher = REF.matcher(value);
         if (matcher.find()) {
             final String ref = matcher.group(1);
-            return substituteRefs(value.replace(String.format("${%s}", ref), getProperty(ref)));
+            return substituteRefs(value.replace(String.format("${%s}", ref), val(ref)));
         }
         return value;
     }
 
-    public String getProperty(String key, String defaultValue) {
-        String value = getProperty(key);
+    public String val(String key, String defaultValue) {
+        String value = val(key);
         return value == null ? defaultValue : value;
     }
 }

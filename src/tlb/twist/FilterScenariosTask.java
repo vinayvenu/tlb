@@ -20,7 +20,7 @@ public class FilterScenariosTask extends Task {
     }
 
     private FilterScenariosTask(SystemEnvironment systemEnvironment) {
-        this(new LoadBalancedTwistSuite(TlbFactory.getCriteria(systemEnvironment.getProperty(TLB_CRITERIA), systemEnvironment)));
+        this(new LoadBalancedTwistSuite(TlbFactory.getCriteria(systemEnvironment.val(TLB_CRITERIA), systemEnvironment)));
     }
     
     FilterScenariosTask(LoadBalancedTwistSuite suite) {

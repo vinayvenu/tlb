@@ -3,6 +3,7 @@ package tlb.service;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import tlb.TestUtil;
 import tlb.domain.SuiteResultEntry;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
+import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -47,12 +49,12 @@ public class TalkToCruiseTest {
     
     @Test
     public void shouldUnderstandPartitionsForPearJobsIdentifiedByNumber() throws Exception{
-        Map<String, String> envMap = initEnvMap("http://test.host:8153/cruise");
+        Map<String, String> envMap = initEnvMap("http://test.host:8153/go");
         envMap.put(Cruise.CRUISE_JOB_NAME, "firefox-2");
         SystemEnvironment environment = new SystemEnvironment(envMap);
         HttpAction action = mock(HttpAction.class);
 
-        when(action.get("http://test.host:8153/cruise/pipelines/pipeline/2/stage/1.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail_with_jobs_in_random_order.xml"));
+        when(action.get("http://test.host:8153/go/pipelines/pipeline-foo/26/stage-foo-bar/1.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail_with_jobs_in_random_order.xml"));
         stubJobDetails(action);
 
         cruise = new TalkToCruise(environment, action);
@@ -64,17 +66,17 @@ public class TalkToCruiseTest {
 
     @Test
     public void shouldUnderstandPartitionsForPearJobsIdentifiedOnUUID() throws Exception{
-        Map<String, String> envMap = initEnvMap("http://test.host:8153/cruise");
+        Map<String, String> envMap = initEnvMap("http://test.host:8153/go");
         envMap.put(Cruise.CRUISE_JOB_NAME, "firefox-bbcdef12-1234-1234-1234-abcdef123456");
         SystemEnvironment environment = new SystemEnvironment(envMap);
         HttpAction action = mock(HttpAction.class);
 
-        when(action.get("http://test.host:8153/cruise/pipelines/pipeline/2/stage/1.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail_with_jobs_in_random_order.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/140.xml")).thenReturn(TestUtil.fileContents("resources/job_details_140_UUID.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/139.xml")).thenReturn(TestUtil.fileContents("resources/job_details_139.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/141.xml")).thenReturn(TestUtil.fileContents("resources/job_details_141_UUID.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/142.xml")).thenReturn(TestUtil.fileContents("resources/job_details_142_UUID.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/143.xml")).thenReturn(TestUtil.fileContents("resources/job_details_143.xml"));
+        when(action.get("http://test.host:8153/go/pipelines/pipeline-foo/26/stage-foo-bar/1.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail_with_jobs_in_random_order.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/140.xml")).thenReturn(TestUtil.fileContents("resources/job_details_140_UUID.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/139.xml")).thenReturn(TestUtil.fileContents("resources/job_details_139.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/141.xml")).thenReturn(TestUtil.fileContents("resources/job_details_141_UUID.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/142.xml")).thenReturn(TestUtil.fileContents("resources/job_details_142_UUID.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/143.xml")).thenReturn(TestUtil.fileContents("resources/job_details_143.xml"));
 
         cruise = new TalkToCruise(environment, action);
         assertThat(cruise.getJobs(), is(Arrays.asList("firefox-cbcdef12-1234-1234-1234-abcdef123456", "rails", "firefox-abcdef12-1234-1234-1234-abcdef123456", "smoke", "firefox-bbcdef12-1234-1234-1234-abcdef123456")));
@@ -85,16 +87,16 @@ public class TalkToCruiseTest {
 
     @Test
     public void shouldWorkWithUrlHavingPathWithTrailingSlash() throws Exception {
-        SystemEnvironment environment = initEnvironment("https://test.host:8154/cruise/");
-        assertCanFindJobsFrom("https://test.host:8154/cruise", environment);
+        SystemEnvironment environment = initEnvironment("https://test.host:8154/go/");
+        assertCanFindJobsFrom("https://test.host:8154/go", environment);
     }
 
     @Test
     public void shouldUpdateCruiseArtifactWithTestTimeUsingPUT() throws Exception {
-        SystemEnvironment environment = initEnvironment("http://test.host:8153/cruise");
+        SystemEnvironment environment = initEnvironment("http://test.host:8153/go");
         HttpAction action = mock(HttpAction.class);
         String data = "com.thoughtworks.tlb.TestSuite: 12\n";
-        String url = "http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/" + TalkToCruise.TEST_TIME_FILE;
+        String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/" + TalkToCruise.TEST_TIME_FILE;
 
         TalkToCruise cruise = new TalkToCruise(environment, action);
         cruise.clearSuiteTimeCachingFile();
@@ -109,11 +111,11 @@ public class TalkToCruiseTest {
 
     @Test
     public void shouldAppendToSubsetSizeArtifactForMultipleCalls() throws Exception{
-        SystemEnvironment environment = initEnvironment("http://test.host:8153/cruise");
+        SystemEnvironment environment = initEnvironment("http://test.host:8153/go");
         HttpAction action = mock(HttpAction.class);
-        when(action.put("http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/tlb/subset_size", "10")).thenReturn("File tlb/subset_size was appended successfully");
-        when(action.put("http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/tlb/subset_size", "20")).thenReturn("File tlb/subset_size was appended successfully");
-        when(action.put("http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/tlb/subset_size", "25")).thenReturn("File tlb/subset_size was appended successfully");
+        when(action.put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "10")).thenReturn("File tlb/subset_size was appended successfully");
+        when(action.put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "20")).thenReturn("File tlb/subset_size was appended successfully");
+        when(action.put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "25")).thenReturn("File tlb/subset_size was appended successfully");
         TalkToCruise toCruise = new TalkToCruise(environment, action);
         toCruise.clearSuiteTimeCachingFile();
         logFixture.startListening();
@@ -130,14 +132,14 @@ public class TalkToCruiseTest {
         logFixture.assertHeard("Posting balanced subset size as 25 to cruise server");
         times.add("25");
         assertThat(toCruise.subsetSizeRepository.load(), is(times));
-        verify(action).put("http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/tlb/subset_size", "10\n");
-        verify(action).put("http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/tlb/subset_size", "20\n");
-        verify(action).put("http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/tlb/subset_size", "25\n");
+        verify(action).put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "10\n");
+        verify(action).put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "20\n");
+        verify(action).put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "25\n");
     }
 
     @Test
     public void shouldUpdateCruiseArtifactWithTestTimeUsingPUTOnlyOnTheLastSuite() throws Exception {
-        SystemEnvironment env = initEnvironment("http://test.host:8153/cruise");
+        SystemEnvironment env = initEnvironment("http://test.host:8153/go");
         FileUtil fileUtil = new FileUtil(env);
         HttpAction action = mock(HttpAction.class);
         String data = "com.thoughtworks.tlb.TestSuite: 12\n" +
@@ -145,7 +147,7 @@ public class TalkToCruiseTest {
                 "com.thoughtworks.tlb.TestCountBased: 10\n" +
                 "com.thoughtworks.tlb.TestCriteriaSelection: 30\n" +
                 "com.thougthworks.tlb.SystemEnvTest: 8\n";
-        String url = "http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/" + TalkToCruise.TEST_TIME_FILE;
+        String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/" + TalkToCruise.TEST_TIME_FILE;
 
         TalkToCruise cruise = new TalkToCruise(env, action);
         cruise.clearSuiteTimeCachingFile();
@@ -170,13 +172,13 @@ public class TalkToCruiseTest {
 
     @Test
     public void shouldUpdateCruiseArtifactWithFailedTestListUsingPUTOnlyOnTheLastSuite() throws Exception {
-        SystemEnvironment env = initEnvironment("http://test.host:8153/cruise");
+        SystemEnvironment env = initEnvironment("http://test.host:8153/go");
         FileUtil fileUtil = new FileUtil(env);
         HttpAction action = mock(HttpAction.class);
         String data = "com.thoughtworks.tlb.FailedSuiteOne\n" +
                 "com.thoughtworks.tlb.FailedSuiteTwo\n" +
                 "com.thoughtworks.tlb.FailedSuiteThree\n";
-        String url = "http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/" + TalkToCruise.FAILED_TESTS_FILE;
+        String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/" + TalkToCruise.FAILED_TESTS_FILE;
 
         TalkToCruise cruise = new TalkToCruise(env, action);
         cruise.clearSuiteTimeCachingFile();
@@ -205,14 +207,14 @@ public class TalkToCruiseTest {
 
     @Test
     public void shouldUpdateCruiseArtifactWithTestTimeUsingPUTOnlyOnTheLastSuiteAccordingToLastSubsetSizeEntry() throws Exception {
-        SystemEnvironment env = initEnvironment("http://test.host:8153/cruise");
+        SystemEnvironment env = initEnvironment("http://test.host:8153/go");
         FileUtil fileUtil = new FileUtil(env);
         HttpAction action = mock(HttpAction.class);
         String data = "com.thoughtworks.tlb.TestSuite: 12\n" +
                 "com.thoughtworks.tlb.TestCriteriaSelection: 30\n" +
                 "com.thougthworks.tlb.SystemEnvTest: 8\n";
-        String url = "http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/" + TalkToCruise.TEST_TIME_FILE;
-
+        String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/" + TalkToCruise.TEST_TIME_FILE;
+        
         TalkToCruise cruise = new TalkToCruise(env, action);
         cruise.clearSuiteTimeCachingFile();
         cruise.subsetSizeRepository.appendLine("5\n10\n3\n");
@@ -250,24 +252,24 @@ public class TalkToCruiseTest {
 
     @Test
     public void shouldPublishSubsetSizeAsALineAppendedToJobArtifact() throws Exception{
-        SystemEnvironment environment = initEnvironment("http://test.host:8153/cruise");
+        SystemEnvironment environment = initEnvironment("http://test.host:8153/go");
         HttpAction action = mock(HttpAction.class);
-        when(action.put("http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/tlb/subset_size", "10\n")).thenReturn("File tlb/subset_size was appended successfully");
+        when(action.put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "10\n")).thenReturn("File tlb/subset_size was appended successfully");
         TalkToService toService = new TalkToCruise(environment, action);
         toService.publishSubsetSize(10);
-        verify(action).put("http://test.host:8153/cruise/files/pipeline/label-2/stage/1/rspec/tlb/subset_size", "10\n");
+        verify(action).put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "10\n");
     }
 
     @Test
     public void shouldFindFailedTestsFromTheLastRunStage() throws Exception{
         HttpAction action = mock(HttpAction.class);
-        when(action.get("http://localhost:8153/cruise/api/feeds/stages.xml")).thenReturn(TestUtil.fileContents("resources/stages_p1.xml"));
-        when(action.get("http://localhost:8153/cruise/api/feeds/stages.xml?before=60")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
-        when(action.get("http://localhost:8153/cruise/api/stages/3.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(TestUtil.fileContents("resources/stages_p1.xml"));
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
+        when(action.get("http://localhost:8153/go/api/stages/3.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
         stubJobDetails(action);
-        when(action.get("http://localhost:8153/cruise/files/pipeline/1/stage/1/firefox-1/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_1"));
-        when(action.get("http://localhost:8153/cruise/files/pipeline/1/stage/1/firefox-2/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_2"));
-        TalkToCruise service = new TalkToCruise(initEnvironment("http://localhost:8153/cruise"), action);
+        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_1"));
+        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_2"));
+        TalkToCruise service = new TalkToCruise(initEnvironment("http://localhost:8153/go"), action);
         List<SuiteResultEntry> failedTestEntries = service.getLastRunFailedTests(Arrays.asList("firefox-1", "firefox-2"));
         List<String> failedTests = failedTestNames(failedTestEntries);
         Collections.sort(failedTests);
@@ -286,13 +288,13 @@ public class TalkToCruiseTest {
     @Test
     public void shouldFindTestTimesFromLastRunStage() throws Exception{
         HttpAction action = mock(HttpAction.class);
-        when(action.get("http://localhost:8153/cruise/api/feeds/stages.xml")).thenReturn(fileContents("resources/stages_p1.xml"));
-        when(action.get("http://localhost:8153/cruise/api/feeds/stages.xml?before=60")).thenReturn(fileContents("resources/stages_p2.xml"));
-        when(action.get("http://localhost:8153/cruise/api/stages/3.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(fileContents("resources/stages_p1.xml"));
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(fileContents("resources/stages_p2.xml"));
+        when(action.get("http://localhost:8153/go/api/stages/3.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
         stubJobDetails(action);
-        when(action.get("http://localhost:8153/cruise/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
-        when(action.get("http://localhost:8153/cruise/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2.properties"));
-        TalkToCruise service = new TalkToCruise(initEnvironment("http://localhost:8153/cruise"), action);
+        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
+        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2.properties"));
+        TalkToCruise service = new TalkToCruise(initEnvironment("http://localhost:8153/go"), action);
         List<SuiteTimeEntry> runTimes = service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
         List<SuiteTimeEntry> expected = new ArrayList<SuiteTimeEntry>();
         expected.add(new SuiteTimeEntry("com.thoughtworks.cruise.one.One", 10l));
@@ -307,17 +309,17 @@ public class TalkToCruiseTest {
     public void shouldFindTestTimesFromLastRunStageWhenDeepDownFeedLinks() throws Exception{
         HttpAction action = mock(HttpAction.class);
 
-        when(action.get("http://localhost:8153/cruise/api/feeds/stages.xml")).thenReturn(TestUtil.fileContents("resources/stages_p1.xml"));
-        when(action.get("http://localhost:8153/cruise/api/feeds/stages.xml?before=60")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
-        when(action.get("http://localhost:8153/cruise/api/feeds/stages.xml?before=42")).thenReturn(TestUtil.fileContents("resources/stages_p3.xml"));
-        when(action.get("http://localhost:8153/cruise/api/stages/2.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(TestUtil.fileContents("resources/stages_p1.xml"));
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=19")).thenReturn(TestUtil.fileContents("resources/stages_p3.xml"));
+        when(action.get("http://localhost:8153/go/api/stages/2.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
 
         stubJobDetails(action);
-        when(action.get("http://localhost:8153/cruise/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
-        when(action.get("http://localhost:8153/cruise/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2_with_new_lines.properties"));
-        Map<String, String> envMap = initEnvMap("http://localhost:8153/cruise");
-        envMap.put(Cruise.CRUISE_PIPELINE_NAME, "old_pipeline");
-        envMap.put(Cruise.CRUISE_STAGE_NAME, "old_stage");
+        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
+        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2_with_new_lines.properties"));
+        Map<String, String> envMap = initEnvMap("http://localhost:8153/go");
+        envMap.put(Cruise.CRUISE_PIPELINE_NAME, "pipeline-foo");
+        envMap.put(Cruise.CRUISE_STAGE_NAME, "stage-foo-quux");
         TalkToCruise service = new TalkToCruise(new SystemEnvironment(envMap), action);
         List<SuiteTimeEntry> runTimes = service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
         List<SuiteTimeEntry> expected = new ArrayList<SuiteTimeEntry>();
@@ -329,20 +331,37 @@ public class TalkToCruiseTest {
         assertThat(runTimes, is(expected));
     }
 
+    @Test
+    public void failWhenCantFindTestTimesFromLastRunStage() throws Exception{
+        HttpAction action = mock(HttpAction.class);
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(fileContents("resources/stages_p3.xml"));
+        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=17")).thenReturn(fileContents("resources/stages_p4.xml"));
+        when(action.get("http://localhost:8153/go/api/stages/3.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
+        stubJobDetails(action);
+        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
+        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2.properties"));
+        TalkToCruise service = new TalkToCruise(initEnvironment("http://localhost:8153/go"), action);
+        try {
+            service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
+            fail("should have failed as a historical stage run does not exist");
+        } catch (Exception e) {
+            assertThat(e, is(NullPointerException.class));
+        }
+    }
+
     private SystemEnvironment initEnvironment(String url) {
         return new SystemEnvironment(initEnvMap(url));
     }
 
     private Map<String, String> initEnvMap(String url) {
         Map<String, String> map = new HashMap<String, String>();
-        map.put(Cruise.CRUISE_STAGE_NAME, "stage");
         map.put(Cruise.CRUISE_SERVER_URL, url);
-        map.put(Cruise.CRUISE_PIPELINE_NAME, "pipeline");
-        map.put(Cruise.CRUISE_PIPELINE_LABEL, "label-2");
-        map.put(Cruise.CRUISE_JOB_NAME, "rspec");
-        map.put(Cruise.CRUISE_STAGE_NAME, "stage");
+        map.put(Cruise.CRUISE_PIPELINE_NAME, "pipeline-foo");
+        map.put(Cruise.CRUISE_PIPELINE_LABEL, "pipeline-foo-26");
+        map.put(Cruise.CRUISE_JOB_NAME, "job-baz");
+        map.put(Cruise.CRUISE_STAGE_NAME, "stage-foo-bar");
         map.put(Cruise.CRUISE_STAGE_COUNTER, "1");
-        map.put(Cruise.CRUISE_PIPELINE_COUNTER, "2");
+        map.put(Cruise.CRUISE_PIPELINE_COUNTER, "26");
         map.put(TLB_TMP_DIR, System.getProperty("java.io.tmpdir"));
         return map;
     }
@@ -350,7 +369,7 @@ public class TalkToCruiseTest {
     private void assertCanFindJobsFrom(String baseUrl, SystemEnvironment environment) throws IOException, URISyntaxException {
         HttpAction action = mock(HttpAction.class);
 
-        when(action.get(baseUrl + "/pipelines/pipeline/2/stage/1.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
+        when(action.get(baseUrl + "/pipelines/pipeline-foo/26/stage-foo-bar/1.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
         stubJobDetails(action);
 
         cruise = new TalkToCruise(environment, action);
@@ -360,10 +379,10 @@ public class TalkToCruiseTest {
     }
 
     private void stubJobDetails(HttpAction action) throws IOException, URISyntaxException {
-        when(action.get("http://test.host:8153/cruise/api/jobs/140.xml")).thenReturn(fileContents("resources/job_details_140.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/139.xml")).thenReturn(fileContents("resources/job_details_139.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/141.xml")).thenReturn(fileContents("resources/job_details_141.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/142.xml")).thenReturn(fileContents("resources/job_details_142.xml"));
-        when(action.get("http://test.host:8153/cruise/api/jobs/143.xml")).thenReturn(fileContents("resources/job_details_143.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/140.xml")).thenReturn(fileContents("resources/job_details_140.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/139.xml")).thenReturn(fileContents("resources/job_details_139.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/141.xml")).thenReturn(fileContents("resources/job_details_141.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/142.xml")).thenReturn(fileContents("resources/job_details_142.xml"));
+        when(action.get("http://test.host:8153/go/api/jobs/143.xml")).thenReturn(fileContents("resources/job_details_143.xml"));
     }
 }

@@ -1,14 +1,12 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <title>Stages</title>
-    <id>http://localhost:8153/cruise/api/feeds/stages.xml</id>
+    <title><![CDATA[pipeline-foo]]></title>
+    <id>http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml</id>
     <author>
-        <name>Cruise</name>
+        <name>Go</name>
     </author>
-    <updated>2010-02-15T22:01:11-08:00</updated>
-    <link rel="self" href="http://localhost:8153/cruise/api/feeds/stages.xml"/>
+    <updated>2010-12-02T12:26:09+05:30</updated>
+    <link rel="self" href="http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml"/>
 
-    
-    
 
-    
+
 </feed>

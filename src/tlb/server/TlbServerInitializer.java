@@ -36,7 +36,7 @@ public class TlbServerInitializer extends ServerInitializer {
         HashMap<String, Object> appMap = new HashMap<String, Object>();
         final EntryRepoFactory repoFactory = repoFactory();
 
-        final int versionLifeInDays = Integer.parseInt(env.getProperty(TlbConstants.Server.VERSION_LIFE_IN_DAYS, "1"));
+        final int versionLifeInDays = Integer.parseInt(env.val(TlbConstants.Server.VERSION_LIFE_IN_DAYS, "1"));
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -51,7 +51,7 @@ public class TlbServerInitializer extends ServerInitializer {
 
     @Override
     protected int appPort()  {
-        return Integer.parseInt(env.getProperty(TlbConstants.Server.TLB_PORT, "7019"));
+        return Integer.parseInt(env.val(TlbConstants.Server.TLB_PORT, "7019"));
     }
 
     EntryRepoFactory repoFactory() {

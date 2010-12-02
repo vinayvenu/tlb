@@ -45,6 +45,6 @@ public class DefaultingTestSplitterCriteria extends TestSplitterCriteria {
     }
 
     private String[] criteriaNames(SystemEnvironment env) {
-        return env.getProperty(TlbConstants.CRITERIA_DEFAULTING_ORDER).split("\\s*:\\s*");
+        return env.val(TlbConstants.CRITERIA_DEFAULTING_ORDER).split("\\s*:\\s*");
     }
 }

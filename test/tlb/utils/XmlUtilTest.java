@@ -30,10 +30,13 @@ public class XmlUtilTest {
         String stageFeedPage = TestUtil.fileContents("resources/stages_p1.xml");
         Element element = XmlUtil.domFor(stageFeedPage);
         List entryIds = element.selectNodes("//a:entry/a:id");
-        assertThat(entryIds.size(), is(3));
-        assertThat(((Element) entryIds.get(0)).getText(), is("72"));
-        assertThat(((Element) entryIds.get(1)).getText(), is("66"));
-        assertThat(((Element) entryIds.get(2)).getText(), is("60"));
+        assertThat(entryIds.size(), is(6));
+        assertThat(((Element) entryIds.get(0)).getText(), is("http://localhost:8153/go/pipelines/pipeline-foo/25/stage-baz/1"));
+        assertThat(((Element) entryIds.get(1)).getText(), is("http://localhost:8153/go/pipelines/pipeline-foo/25/stage-bar/1"));
+        assertThat(((Element) entryIds.get(2)).getText(), is("http://localhost:8153/go/pipelines/pipeline-foo/24/stage-baz/1"));
+        assertThat(((Element) entryIds.get(3)).getText(), is("http://localhost:8153/go/pipelines/pipeline-foo/24/stage-bar/1"));
+        assertThat(((Element) entryIds.get(4)).getText(), is("http://localhost:8153/go/pipelines/pipeline-foo/23/stage-baz/1"));
+        assertThat(((Element) entryIds.get(5)).getText(), is("http://localhost:8153/go/pipelines/pipeline-foo/23/stage-bar/1"));
     }
     
     @Test
@@ -45,7 +48,7 @@ public class XmlUtilTest {
         String stageFeedPage = TestUtil.fileContents("resources/stages_p1.xml");
         Element element = XmlUtil.domFor(stageFeedPage);
         List entryIds = element.selectNodes("//a:entry/a:id");
-        assertThat(entryIds.size(), is(3));
-        assertThat(((Element) entryIds.get(0)).getText(), is("72"));
+        assertThat(entryIds.size(), is(6));
+        assertThat(((Element) entryIds.get(0)).getText(), is("http://localhost:8153/go/pipelines/pipeline-foo/25/stage-baz/1"));
     }
 }

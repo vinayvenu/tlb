@@ -77,7 +77,7 @@ public class TlbFactory<T> {
     public static TalkToService getTalkToService(SystemEnvironment environment) {
         if (talkToServiceFactory == null)
             talkToServiceFactory = new TlbFactory<TalkToService>(TalkToService.class, null);
-        return talkToServiceFactory.getInstance(environment.getProperty(TlbConstants.TALK_TO_SERVICE), environment);
+        return talkToServiceFactory.getInstance(environment.val(TlbConstants.TALK_TO_SERVICE), environment);
     }
 
     public static ServerInitializer getRestletLauncher(String restletLauncherName, SystemEnvironment environment) {

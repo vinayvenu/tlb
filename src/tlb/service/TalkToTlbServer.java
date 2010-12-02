@@ -38,7 +38,7 @@ public class TalkToTlbServer implements TalkToService {
         final HttpClient client = new HttpClient(new HttpClientParams());
         final URI uri;
         try {
-            uri = new URI(env.getProperty(TlbConstants.TlbServer.URL), true);
+            uri = new URI(env.val(TlbConstants.TlbServer.URL), true);
         } catch (URIException e) {
             throw new RuntimeException(e);
         }
@@ -50,7 +50,7 @@ public class TalkToTlbServer implements TalkToService {
     }
 
     private String suiteTimeRepoName() {
-        return Boolean.parseBoolean(env.getProperty(TlbConstants.TlbServer.USE_SMOOTHING, "false")) ? EntryRepoFactory.SMOOTHED_SUITE_TIME : EntryRepoFactory.SUITE_TIME;
+        return Boolean.parseBoolean(env.val(TlbConstants.TlbServer.USE_SMOOTHING, "false")) ? EntryRepoFactory.SMOOTHED_SUITE_TIME : EntryRepoFactory.SUITE_TIME;
     }
 
     public void testClassFailure(String className, boolean hasFailed) {
@@ -58,7 +58,7 @@ public class TalkToTlbServer implements TalkToService {
     }
 
     public List<SuiteTimeEntry> getLastRunTestTimes() {
-        return SuiteTimeEntry.parse(httpAction.get(getUrl(namespace(), suiteTimeRepoName(), env.getProperty(TlbConstants.TlbServer.JOB_VERSION))));
+        return SuiteTimeEntry.parse(httpAction.get(getUrl(namespace(), suiteTimeRepoName(), env.val(TlbConstants.TlbServer.JOB_VERSION))));
     }
 
     public List<SuiteResultEntry> getLastRunFailedTests() {
@@ -75,16 +75,16 @@ public class TalkToTlbServer implements TalkToService {
     }
 
     public int partitionNumber() {
-        return Integer.parseInt(env.getProperty(TlbConstants.TlbServer.PARTITION_NUMBER));
+        return Integer.parseInt(env.val(TlbConstants.TlbServer.PARTITION_NUMBER));
     }
 
     public int totalPartitions() {
-        return Integer.parseInt(env.getProperty(TlbConstants.TlbServer.TOTAL_PARTITIONS));
+        return Integer.parseInt(env.val(TlbConstants.TlbServer.TOTAL_PARTITIONS));
     }
 
     private String getUrl(String... parts) {
         final StringBuilder builder = new StringBuilder();
-        builder.append(env.getProperty(URL));
+        builder.append(env.val(URL));
         for (String part : parts) {
             builder.append("/").append(part);
         }
@@ -100,6 +100,6 @@ public class TalkToTlbServer implements TalkToService {
     }
 
     private String namespace() {
-        return env.getProperty(JOB_NAMESPACE);
+        return env.val(JOB_NAMESPACE);
     }
 }

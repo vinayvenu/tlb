@@ -22,7 +22,7 @@ public class FileUtil {
     }
 
     public String tmpDir() {
-        String tmpDir = env.getProperty(TLB_TMP_DIR);
+        String tmpDir = env.val(TLB_TMP_DIR);
         if (tmpDir == null) {
             tmpDir = System.getProperty(TMP_DIR);
             logger.warning(String.format("defaulting tlb tmp directory to %s", tmpDir));

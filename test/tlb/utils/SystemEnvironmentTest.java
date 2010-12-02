@@ -14,7 +14,7 @@ public class SystemEnvironmentTest {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("foo", "bar");
         SystemEnvironment env = new SystemEnvironment(map);
-        assertThat(env.getProperty("foo"), is("bar"));
+        assertThat(env.val("foo"), is("bar"));
     }
 
     @Test
@@ -30,10 +30,10 @@ public class SystemEnvironmentTest {
         map.put("axe", "${X}");
         map.put("X", "x");
         SystemEnvironment env = new SystemEnvironment(map);
-        assertThat(env.getProperty("foo"), is("bar"));
-        assertThat(env.getProperty("baz"), is("baz-bar"));
-        assertThat(env.getProperty("quux"), is("baz-bar"));
-        assertThat(env.getProperty("complex"), is("baz-bar|baz-bar"));
+        assertThat(env.val("foo"), is("bar"));
+        assertThat(env.val("baz"), is("baz-bar"));
+        assertThat(env.val("quux"), is("baz-bar"));
+        assertThat(env.val("complex"), is("baz-bar|baz-bar"));
     }
 
     @Test
@@ -43,23 +43,23 @@ public class SystemEnvironmentTest {
         map.put("bar", "$o");
         map.put("baz", "baz-${fo${bar}}");
         SystemEnvironment env = new SystemEnvironment(map);
-        assertThat(env.getProperty("baz"), is("baz-ba${r"));
+        assertThat(env.val("baz"), is("baz-ba${r"));
     }
 
     @Test
     public void shouldGetSystemEnvironmentVairableWhenNoMapPassed() throws Exception{
         SystemEnvironment env = new SystemEnvironment();
-        assertThat(env.getProperty("HOME"), is(System.getProperty("user.home")));
+        assertThat(env.val("HOME"), is(System.getProperty("user.home")));
     }
     
     @Test
     public void shouldDefaultEnvVariableValues() {
         HashMap<String, String> map = new HashMap<String, String>();
         SystemEnvironment env = new SystemEnvironment(map);
-        assertThat(env.getProperty("foo", "bar"), is("bar"));
-        assertThat(env.getProperty("foo"), is(nullValue()));
+        assertThat(env.val("foo", "bar"), is("bar"));
+        assertThat(env.val("foo"), is(nullValue()));
         map.put("foo", "baz");
-        assertThat(env.getProperty("foo", "bar"), is("baz"));
-        assertThat(env.getProperty("foo"), is("baz"));
+        assertThat(env.val("foo", "bar"), is("baz"));
+        assertThat(env.val("foo"), is("baz"));
     }
 }

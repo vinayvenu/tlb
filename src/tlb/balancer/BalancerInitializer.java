@@ -21,14 +21,14 @@ public class BalancerInitializer extends ServerInitializer {
 
     @Override
     protected int appPort() {
-        return Integer.parseInt(env.getProperty(TlbConstants.Balancer.TLB_BALANCER_PORT));
+        return Integer.parseInt(env.val(TlbConstants.Balancer.TLB_BALANCER_PORT));
     }
 
     @Override
     public Restlet application() {
         HashMap<String, Object> appMap = new HashMap<String, Object>();
-        appMap.put(TlbClient.SPLITTER, TlbFactory.getCriteria(env.getProperty(TlbConstants.TLB_CRITERIA), env));
-        appMap.put(TlbClient.ORDERER, TlbFactory.getOrderer(env.getProperty(TlbConstants.TLB_ORDERER), env));
+        appMap.put(TlbClient.SPLITTER, TlbFactory.getCriteria(env.val(TlbConstants.TLB_CRITERIA), env));
+        appMap.put(TlbClient.ORDERER, TlbFactory.getOrderer(env.val(TlbConstants.TLB_ORDERER), env));
         appMap.put(TlbClient.TALK_TO_SERVICE, TlbFactory.getTalkToService(env));
         appMap.put(TlbClient.APP_COMPONENT, init());
         Context applicationContext = new Context();

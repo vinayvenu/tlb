@@ -34,8 +34,8 @@ public class LoadBalancedFileSet extends FileSet {
     }
 
     public LoadBalancedFileSet(SystemEnvironment systemEnvironment) {
-        this(TlbFactory.getCriteria(systemEnvironment.getProperty(TLB_CRITERIA), systemEnvironment),
-                TlbFactory.getOrderer(systemEnvironment.getProperty(TlbConstants.TLB_ORDERER), systemEnvironment));
+        this(TlbFactory.getCriteria(systemEnvironment.val(TLB_CRITERIA), systemEnvironment),
+                TlbFactory.getOrderer(systemEnvironment.val(TlbConstants.TLB_ORDERER), systemEnvironment));
     }
 
     public LoadBalancedFileSet() {

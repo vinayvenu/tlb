@@ -18,6 +18,6 @@ public class Main {
     }
 
     ServerInitializer restletInitializer(SystemEnvironment environment) {
-        return TlbFactory.getRestletLauncher(environment.getProperty(TlbConstants.TLB_APP), environment);
+        return TlbFactory.getRestletLauncher(environment.val(TlbConstants.TLB_APP), environment);
     }
 }
