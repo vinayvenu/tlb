@@ -197,7 +197,7 @@
             <classpath refid="test.classpath"/>
             <batchtest todir="${reports.dir}">
                 <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class"/>
-                <formatter classname="org.tlb.antataRecorder"/>
+                <formatter classname="org.tlb.JunitDataRecorder"/>
                 <formatter type="plain"/>
             </batchtest>
         </junit>
