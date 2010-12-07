@@ -20,11 +20,13 @@ import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
+import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static tlb.TlbConstants.Server.VERSION_LIFE_IN_DAYS;
 import static tlb.server.repo.EntryRepoFactory.LATEST_VERSION;
 
@@ -119,6 +121,8 @@ public class TlbServerInitializerTest {
 
     @Test
     public void shouldSetTimerToPurgeOldVersions() {
+        systemEnv.put(VERSION_LIFE_IN_DAYS, "3");
+
         final TimerTask[] tasks = new TimerTask[1];
         final EntryRepoFactory repoFactory = mock(EntryRepoFactory.class);
         final Timer timer = new Timer() {
@@ -138,9 +142,18 @@ public class TlbServerInitializerTest {
         }.init();
 
         tasks[0].run();
-        verify(repoFactory).purgeVersionsOlderThan(1);
+        verify(repoFactory).purgeVersionsOlderThan(3);
+    }
 
-        systemEnv.put(VERSION_LIFE_IN_DAYS, "3");
+    @Test
+    public void shouldNotSetTimerIfNoVersionLifeIsMentioned() {
+        final EntryRepoFactory repoFactory = mock(EntryRepoFactory.class);
+        final Timer timer = new Timer() {
+            @Override
+            public void schedule(TimerTask task, long delay, long period) {
+                fail("Should not have scheduled anything!");
+            }
+        };
 
         new TlbServerInitializer(new SystemEnvironment(systemEnv), timer) {
             @Override
@@ -149,7 +162,7 @@ public class TlbServerInitializerTest {
             }
         }.init();
 
-        tasks[0].run();
-        verify(repoFactory).purgeVersionsOlderThan(3);
+        verify(repoFactory).registerExitHook();
+        verifyNoMoreInteractions(repoFactory);
     }
 }

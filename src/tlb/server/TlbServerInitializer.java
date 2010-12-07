@@ -36,17 +36,28 @@ public class TlbServerInitializer extends ServerInitializer {
         HashMap<String, Object> appMap = new HashMap<String, Object>();
         final EntryRepoFactory repoFactory = repoFactory();
 
-        final int versionLifeInDays = Integer.parseInt(env.val(TlbConstants.Server.VERSION_LIFE_IN_DAYS, "1"));
+        setupTimerForPurgingOlderVersions(repoFactory);
+
+        repoFactory.registerExitHook();
+        appMap.put(TlbConstants.Server.REPO_FACTORY, repoFactory);
+        applicationContext.setAttributes(appMap);
+    }
+
+    private void setupTimerForPurgingOlderVersions(final EntryRepoFactory repoFactory) {
+        final int versionLifeInDays = versionInLife();
+        if (versionLifeInDays == -1) {
+            return;
+        }
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 repoFactory.purgeVersionsOlderThan(versionLifeInDays);
             }
         }, 0, 1*24*60*60*1000);
+    }
 
-        repoFactory.registerExitHook();
-        appMap.put(TlbConstants.Server.REPO_FACTORY, repoFactory);
-        applicationContext.setAttributes(appMap);
+    private int versionInLife() {
+        return Integer.parseInt(env.val(TlbConstants.Server.VERSION_LIFE_IN_DAYS, "-1"));
     }
 
     @Override
