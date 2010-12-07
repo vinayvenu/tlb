@@ -125,6 +125,34 @@
 
     <target name="package" depends="clean, package.src, package.jar"/>
 
+    <target name="zip-all" depends="package">
+        <property name="dest_dir" location="${target.dir}/tlb_all_dist"/>
+        <property name="tar" location="${target.dir}/tlb.all.tar"/>
+        <mkdir dir="${dest_dir}" />
+        <copy todir="${dest_dir}">
+            <fileset dir="${basedir}" includes="*.sh" />
+            <fileset dir="${target.dir}" includes="tlb-all*.jar" />
+        </copy>
+        <tar basedir="${dest_dir}" destfile="${tar}"/>
+        <bzip2 src="${tar}" destfile="${target.dir}/tlb-all-g${short_rev}.tar.bz2"/>
+        <delete dir="${tar}" />
+        <delete dir="${dest_dir}" />
+    </target>
+
+    <target name="zip-client" depends="package">
+        <property name="dest_dir" location="${target.dir}/tlb_client_dist"/>
+        <property name="tar" location="${target.dir}/tlb.client.tar"/>
+        <mkdir dir="${dest_dir}" />
+        <copy todir="${dest_dir}">
+            <fileset dir="${target.dir}" includes="tlb-g*.jar" />
+            <fileset dir="${lib.dir}" includes="*.jar" />
+        </copy>
+        <tar basedir="${dest_dir}" destfile="${tar}"/>
+        <bzip2 src="${tar}" destfile="${target.dir}/tlb-client-g${short_rev}.tar.bz2"/>
+        <delete dir="${tar}" />
+        <delete dir="${dest_dir}" />
+    </target>
+
     <target name="emma.instr" depends="compile">
         <sequential>
             <mkdir dir="${emma.dir}"/>
