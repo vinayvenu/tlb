@@ -57,7 +57,7 @@ public class TlbServerInitializer extends ServerInitializer {
     }
 
     private int versionInLife() {
-        return Integer.parseInt(env.val(TlbConstants.Server.VERSION_LIFE_IN_DAYS, "-1"));
+        return Integer.parseInt(env.val(TlbConstants.Server.VERSION_LIFE_IN_DAYS, "7"));
     }
 
     @Override

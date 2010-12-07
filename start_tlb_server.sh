@@ -4,7 +4,7 @@
 export TLB_PORT=7019
 
 #This is the number of days for which a given version's data is kept. -1 means it will never be purged
-export VERSION_LIFE_IN_DAYS=-1
+export VERSION_LIFE_IN_DAYS=7
 
 #This is used as 'alpha' in the Smoothened balancing 
 export SMOOTHING_FACTOR=1

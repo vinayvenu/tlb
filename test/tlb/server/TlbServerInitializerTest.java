@@ -121,8 +121,6 @@ public class TlbServerInitializerTest {
 
     @Test
     public void shouldSetTimerToPurgeOldVersions() {
-        systemEnv.put(VERSION_LIFE_IN_DAYS, "3");
-
         final TimerTask[] tasks = new TimerTask[1];
         final EntryRepoFactory repoFactory = mock(EntryRepoFactory.class);
         final Timer timer = new Timer() {
@@ -142,11 +140,25 @@ public class TlbServerInitializerTest {
         }.init();
 
         tasks[0].run();
+        verify(repoFactory).purgeVersionsOlderThan(7);
+
+        systemEnv.put(VERSION_LIFE_IN_DAYS, "3");
+
+        new TlbServerInitializer(new SystemEnvironment(systemEnv), timer) {
+            @Override
+            EntryRepoFactory repoFactory() {
+                return repoFactory;
+            }
+        }.init();
+
+        tasks[0].run();
         verify(repoFactory).purgeVersionsOlderThan(3);
     }
 
     @Test
     public void shouldNotSetTimerIfNoVersionLifeIsMentioned() {
+        systemEnv.put(VERSION_LIFE_IN_DAYS, "-1");
+
         final EntryRepoFactory repoFactory = mock(EntryRepoFactory.class);
         final Timer timer = new Timer() {
             @Override
