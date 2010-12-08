@@ -1,16 +1,21 @@
 #!/bin/bash
 
-#The port on which the TLB server is started.
-export TLB_PORT=7019
+#The port the TLB server would listen to
+#export TLB_PORT=7019 #uncomment to override, 7019 is the default value
 
-#This is the number of days for which a given version's data is kept. -1 means it will never be purged
+#Number of days a given version of data survives(before being considered garbage by TLB and deleted). -1 means it will never be purged.
 export VERSION_LIFE_IN_DAYS=7
 
-#This is used as 'alpha' in the Smoothened balancing 
-export SMOOTHING_FACTOR=1
+#This is used as 'alpha' in the Smoothened balancing (refer. http://en.wikipedia.org/wiki/Exponential_smoothing for details)
+export SMOOTHING_FACTOR=0.5 # 0.5 means half weightage to last run time, other half to historical run time
 
-#The store is the directory under which the test information is stored
-export tlb_store=tlb_store
+#Store is the directory under which the test information(running-time, results etc) are stored
+#export tlb_store=tlb_store #uncomment to override, tlb_store is the default value
 
-nohup java -jar tlb-all*.jar &
-echo $! > server.pid
+#find latest tlb jar
+tlb_jar=`ls -t | grep '^tlb-all.*\.jar$'`
+
+nohup java -jar $tlb_jar &
+server_pid=$!
+echo $server_pid > .server.pid
+echo "Server started, PID: $server_pid"

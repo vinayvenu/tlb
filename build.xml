@@ -95,6 +95,10 @@
         <exec executable="git" outputproperty="short_rev">
             <arg line="describe --always"/>
         </exec>
+        <property name="tlb.basename" value="tlb-g${short_rev}"/>
+        <property name="tlb.all.basename" value="tlb-all-g${short_rev}"/>
+        <property name="tlb.jar.name" value="${tlb.basename}.jar"/>
+        <property name="tlb.all.jar.name" value="${tlb.all.basename}.jar"/>
     </target>
 
     <target name="package.src" depends="init, -load.short.rev">
@@ -104,7 +108,7 @@
     </target>
 
     <target name="package.jar" depends="init, compile, -load.short.rev">
-        <property name="tlb_jar" value="${target.dir}/tlb-g${short_rev}.jar"/>
+        <property name="tlb_jar" value="${target.dir}/${tlb.jar.name}"/>
         <jar destfile="${tlb_jar}">
             <fileset dir="${classes.dir}"/>
             <fileset dir="${src.dir}">
@@ -115,7 +119,7 @@
             </manifest>
         </jar>
 
-        <onejar destfile="${target.dir}/tlb-all-g${short_rev}.jar">
+        <onejar destfile="${target.dir}/${tlb.all.jar.name}">
             <main jar="${tlb_jar}"/>
             <lib>
                 <fileset dir="${lib.dir}"/>
@@ -125,30 +129,34 @@
 
     <target name="package" depends="clean, package.src, package.jar"/>
 
-    <target name="zip-all" depends="package">
+    <target name="zip-all" depends="package, -load.short.rev">
         <property name="dest_dir" location="${target.dir}/tlb_all_dist"/>
-        <property name="tar" location="${target.dir}/tlb.all.tar"/>
-        <mkdir dir="${dest_dir}" />
-        <copy todir="${dest_dir}">
+        <property name="archive_dir" location="${dest_dir}/${tlb.all.basename}"/>
+        <property name="tar" location="${target.dir}/${tlb.all.basename}.tar"/>
+        <mkdir dir="${archive_dir}" />
+        <copy todir="${archive_dir}">
             <fileset dir="${basedir}" includes="*.sh" />
-            <fileset dir="${target.dir}" includes="tlb-all*.jar" />
+            <fileset dir="${target.dir}" includes="${tlb.all.jar.name}" />
         </copy>
         <tar basedir="${dest_dir}" destfile="${tar}"/>
-        <bzip2 src="${tar}" destfile="${target.dir}/tlb-all-g${short_rev}.tar.bz2"/>
+        <bzip2 src="${tar}" destfile="${target.dir}/${tlb.all.basename}.tar.bz2"/>
         <delete dir="${tar}" />
         <delete dir="${dest_dir}" />
     </target>
 
-    <target name="zip-client" depends="package">
+    <target name="zip" depends="package">
         <property name="dest_dir" location="${target.dir}/tlb_client_dist"/>
-        <property name="tar" location="${target.dir}/tlb.client.tar"/>
-        <mkdir dir="${dest_dir}" />
-        <copy todir="${dest_dir}">
-            <fileset dir="${target.dir}" includes="tlb-g*.jar" />
+        <property name="archive_dir" location="${dest_dir}/${tlb.basename}"/>
+        <property name="tar" location="${target.dir}/${tlb.basename}.tar"/>
+        <mkdir dir="${archive_dir}" />
+        <copy todir="${archive_dir}">
+            <fileset dir="${target.dir}" includes="${tlb.jar.name}" />
+        </copy>
+        <copy todir="${archive_dir}/lib">
             <fileset dir="${lib.dir}" includes="*.jar" />
         </copy>
         <tar basedir="${dest_dir}" destfile="${tar}"/>
-        <bzip2 src="${tar}" destfile="${target.dir}/tlb-client-g${short_rev}.tar.bz2"/>
+        <bzip2 src="${tar}" destfile="${target.dir}/${tlb.basename}.tar.bz2"/>
         <delete dir="${tar}" />
         <delete dir="${dest_dir}" />
     </target>

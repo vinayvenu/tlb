@@ -3,3 +3,5 @@ out
 target
 local
 tlb_store
+nohup.out
+tlb-all*.jar
