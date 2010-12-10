@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import tlb.*;
-import tlb.service.TalkToCruise;
+import tlb.service.TalkToGoServer;
 import tlb.utils.SuiteFileConvertor;
 import tlb.utils.SystemEnvironment;
 
@@ -34,7 +34,7 @@ public class JobFamilyAwareSplitterCriteriaTest {
     public void testFilterShouldPublishNumberOfSuitesSelectedForRunning() {
         HashMap<String, String> envMap = new HashMap<String, String>();
         envMap.put(TlbConstants.Cruise.CRUISE_JOB_NAME, "build-1");
-        TalkToCruise toCruise = mock(TalkToCruise.class);
+        TalkToGoServer toCruise = mock(TalkToGoServer.class);
         when(toCruise.totalPartitions()).thenReturn(3);
 
         JobFamilyAwareSplitterCriteria criteria = new JobFamilyAwareSplitterCriteria(new SystemEnvironment(envMap)) {

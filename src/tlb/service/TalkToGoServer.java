@@ -32,8 +32,8 @@ import java.util.regex.Pattern;
 /**
  * @understands requesting and posting information to/from cruise
  */
-public class TalkToCruise implements TalkToService {
-    private static final Logger logger = Logger.getLogger(TalkToCruise.class.getName());
+public class TalkToGoServer implements TalkToService {
+    private static final Logger logger = Logger.getLogger(TalkToGoServer.class.getName());
 
     private final SystemEnvironment environment;
     private final HttpAction httpAction;
@@ -54,7 +54,7 @@ public class TalkToCruise implements TalkToService {
     final TlbEntryRepository testTimesRepository;
     final TlbEntryRepository failedTestsRepository;
 
-    public TalkToCruise(SystemEnvironment environment) {
+    public TalkToGoServer(SystemEnvironment environment) {
         this(environment, createHttpAction(environment));
     }
 
@@ -82,7 +82,7 @@ public class TalkToCruise implements TalkToService {
         return new DefaultHttpAction(createHttpClient(environment), createUri(environment));
     }
 
-    public TalkToCruise(SystemEnvironment environment, HttpAction httpAction) {
+    public TalkToGoServer(SystemEnvironment environment, HttpAction httpAction) {
         this.environment = environment;
         this.httpAction = httpAction;
         subsetSize = null;

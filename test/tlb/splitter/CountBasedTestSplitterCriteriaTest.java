@@ -6,7 +6,7 @@ import tlb.TestUtil;
 import tlb.TlbFileResource;
 import tlb.TlbSuiteFile;
 import tlb.ant.JunitFileResource;
-import tlb.service.TalkToCruise;
+import tlb.service.TalkToGoServer;
 import tlb.service.TalkToService;
 import tlb.utils.SuiteFileConvertor;
 import tlb.utils.SystemEnvironment;
@@ -27,7 +27,7 @@ public class CountBasedTestSplitterCriteriaTest {
 
     @Before
     public void setUp() throws Exception {
-        talkToService = mock(TalkToCruise.class);
+        talkToService = mock(TalkToGoServer.class);
         logFixture = new TestUtil.LogFixture();
     }
 

@@ -9,7 +9,7 @@ import tlb.orderer.FailedFirstOrderer;
 import tlb.orderer.TestOrderer;
 import tlb.server.ServerInitializer;
 import tlb.server.TlbServerInitializer;
-import tlb.service.TalkToCruise;
+import tlb.service.TalkToGoServer;
 import tlb.service.TalkToService;
 import tlb.service.TalkToTlbServer;
 import tlb.splitter.*;
@@ -28,31 +28,31 @@ public class TlbFactoryTest {
 
     @Test
     public void shouldReturnDefaultMatchAllCriteriaForEmpty() {
-        TestSplitterCriteria criteria = TlbFactory.getCriteria(null, env("tlb.service.TalkToCruise"));
+        TestSplitterCriteria criteria = TlbFactory.getCriteria(null, env("tlb.service.TalkToGoServer"));
         assertThat(criteria, Is.is(JobFamilyAwareSplitterCriteria.MATCH_ALL_FILE_SET));
-        criteria = TlbFactory.getCriteria("", env("tlb.service.TalkToCruise"));
+        criteria = TlbFactory.getCriteria("", env("tlb.service.TalkToGoServer"));
         assertThat(criteria, is(JobFamilyAwareSplitterCriteria.MATCH_ALL_FILE_SET));
     }
     
     @Test
     public void shouldReturnNoOPOrdererForEmpty() {
-        TestOrderer orderer = TlbFactory.getOrderer(null, env("tlb.service.TalkToCruise"));
+        TestOrderer orderer = TlbFactory.getOrderer(null, env("tlb.service.TalkToGoServer"));
         assertThat(orderer, Is.is(TestOrderer.NO_OP));
-        orderer = TlbFactory.getOrderer("", env("tlb.service.TalkToCruise"));
+        orderer = TlbFactory.getOrderer("", env("tlb.service.TalkToGoServer"));
         assertThat(orderer, is(TestOrderer.NO_OP));
     }
 
     @Test
     public void shouldThrowAnExceptionWhenTheCriteriaClassIsNotFound() {
         try {
-            TlbFactory.getCriteria("com.thoughtworks.cruise.tlb.MissingCriteria", env("tlb.service.TalkToCruise"));
+            TlbFactory.getCriteria("com.thoughtworks.cruise.tlb.MissingCriteria", env("tlb.service.TalkToGoServer"));
             fail("should not be able to create random criteria!");
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), is("Unable to locate class 'com.thoughtworks.cruise.tlb.MissingCriteria'"));
         }
 
         try {
-            TlbFactory.getOrderer("com.thoughtworks.cruise.tlb.MissingOrderer", env("tlb.service.TalkToCruise"));
+            TlbFactory.getOrderer("com.thoughtworks.cruise.tlb.MissingOrderer", env("tlb.service.TalkToGoServer"));
             fail("should not be able to create random orderer!");
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), is("Unable to locate class 'com.thoughtworks.cruise.tlb.MissingOrderer'"));
@@ -72,7 +72,7 @@ public class TlbFactoryTest {
     @Test
     public void shouldThrowAnExceptionWhenTheCriteriaClassDoesNotImplementTestSplitterCriteria() {
         try {
-            TlbFactory.getCriteria("java.lang.String", env("tlb.service.TalkToCruise"));
+            TlbFactory.getCriteria("java.lang.String", env("tlb.service.TalkToGoServer"));
             fail("should not be able to create criteria that doesn't implement TestSplitterCriteria");
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), is("Class 'java.lang.String' is-not/does-not-implement 'class tlb.splitter.TestSplitterCriteria'"));
@@ -81,7 +81,7 @@ public class TlbFactoryTest {
 
     @Test
     public void shouldReturnCountBasedCriteria() {
-        TestSplitterCriteria criteria = TlbFactory.getCriteria("tlb.splitter.CountBasedTestSplitterCriteria", env("tlb.service.TalkToCruise"));
+        TestSplitterCriteria criteria = TlbFactory.getCriteria("tlb.splitter.CountBasedTestSplitterCriteria", env("tlb.service.TalkToGoServer"));
         assertThat(criteria, instanceOf(CountBasedTestSplitterCriteria.class));
     }
     
@@ -97,21 +97,21 @@ public class TlbFactoryTest {
     @Test
     public void shouldInjectCruiseCommunicatorWhenImplementsTalkToService() {
         TlbFactory<TestSplitterCriteria> criteriaFactory = new TlbFactory<TestSplitterCriteria>(TestSplitterCriteria.class, JobFamilyAwareSplitterCriteria.MATCH_ALL_FILE_SET);
-        TestSplitterCriteria criteria = criteriaFactory.getInstance(MockCriteria.class, env("tlb.service.TalkToCruise"));
+        TestSplitterCriteria criteria = criteriaFactory.getInstance(MockCriteria.class, env("tlb.service.TalkToGoServer"));
         assertThat(criteria, instanceOf(MockCriteria.class));
         assertThat(((MockCriteria)criteria).calledTalksToService, is(true));
-        assertThat(((MockCriteria)criteria).talker, is(TalkToCruise.class));
+        assertThat(((MockCriteria)criteria).talker, is(TalkToGoServer.class));
     }
 
     @Test
     public void shouldReturnTimeBasedCriteria() {
-        TestSplitterCriteria criteria = TlbFactory.getCriteria("tlb.splitter.TimeBasedTestSplitterCriteria", env("tlb.service.TalkToCruise"));
+        TestSplitterCriteria criteria = TlbFactory.getCriteria("tlb.splitter.TimeBasedTestSplitterCriteria", env("tlb.service.TalkToGoServer"));
         assertThat(criteria, instanceOf(TimeBasedTestSplitterCriteria.class));
     }
 
     @Test
     public void shouldReturnFailedFirstOrderer() {
-        TestOrderer failedTestsFirstOrderer = TlbFactory.getOrderer("tlb.orderer.FailedFirstOrderer", env("tlb.service.TalkToCruise"));
+        TestOrderer failedTestsFirstOrderer = TlbFactory.getOrderer("tlb.orderer.FailedFirstOrderer", env("tlb.service.TalkToGoServer"));
         assertThat(failedTestsFirstOrderer, instanceOf(FailedFirstOrderer.class));
     }
 
@@ -128,9 +128,9 @@ public class TlbFactoryTest {
     public void shouldReturnTalkToCruise() {
         final Map<String, String> map = new HashMap<String, String>();
         map.put(TlbConstants.Cruise.CRUISE_SERVER_URL, "http://localhost:8153/cruise");
-        map.put(TlbConstants.TALK_TO_SERVICE, "tlb.service.TalkToCruise");
+        map.put(TlbConstants.TALK_TO_SERVICE, "tlb.service.TalkToGoServer");
         TalkToService talkToService = TlbFactory.getTalkToService(new SystemEnvironment(map));
-        assertThat(talkToService, is(TalkToCruise.class));
+        assertThat(talkToService, is(TalkToGoServer.class));
     }
 
     @Test

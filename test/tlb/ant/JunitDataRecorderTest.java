@@ -1,7 +1,7 @@
 package tlb.ant;
 
 import tlb.TestUtil;
-import tlb.service.TalkToCruise;
+import tlb.service.TalkToGoServer;
 import tlb.utils.SystemEnvironment;
 import org.junit.Test;
 import org.junit.Before;
@@ -10,7 +10,7 @@ import org.apache.tools.ant.taskdefs.optional.junit.JUnitTest;
 import static org.mockito.Mockito.*;
 
 public class JunitDataRecorderTest {
-    private TalkToCruise talkToCruise;
+    private TalkToGoServer talkToCruise;
     private JunitDataRecorder recorder;
     private TestUtil.LogFixture logFixture;
     private JUnitTest test;
@@ -19,7 +19,7 @@ public class JunitDataRecorderTest {
     public void setUp() {
         logFixture = new TestUtil.LogFixture();
         test = testSuite("com.thoughtworks.tlb.TestWorks", 0l, 0l, 11l);
-        talkToCruise = mock(TalkToCruise.class);
+        talkToCruise = mock(TalkToGoServer.class);
         recorder = new JunitDataRecorder(talkToCruise, new SystemEnvironment());
         recorder.startTestSuite(test);
     }

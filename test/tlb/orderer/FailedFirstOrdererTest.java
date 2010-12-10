@@ -9,7 +9,7 @@ import tlb.TlbFileResource;
 import tlb.TlbSuiteFile;
 import tlb.ant.JunitFileResource;
 import tlb.domain.SuiteResultEntry;
-import tlb.service.TalkToCruise;
+import tlb.service.TalkToGoServer;
 import tlb.splitter.TalksToService;
 import tlb.utils.SuiteFileConvertor;
 
@@ -28,14 +28,14 @@ import static tlb.TestUtil.initEnvironment;
 
 public class FailedFirstOrdererTest {
     private FailedFirstOrderer orderer;
-    private TalkToCruise toCruise;
+    private TalkToGoServer toCruise;
     private Project project;
     private String baseDir;
 
     @Before
     public void setUp() throws Exception {
         orderer = new FailedFirstOrderer(initEnvironment("job-1"));
-        toCruise = mock(TalkToCruise.class);
+        toCruise = mock(TalkToGoServer.class);
         project = new Project();
         baseDir = TestUtil.createTempFolder().getAbsolutePath();
         project.setBasedir(baseDir);
