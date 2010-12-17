@@ -2,7 +2,6 @@ package tlb;
 
 import tlb.ant.JunitFileResource;
 import tlb.domain.SuiteLevelEntry;
-import tlb.utils.FileUtil;
 import tlb.utils.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.Project;
@@ -18,6 +17,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -61,6 +61,13 @@ public class TestUtil {
         }
         file.deleteOnExit();
         return file;
+    }
+
+    public static void updateEnv(SystemEnvironment env, String key, String value) throws NoSuchFieldException, IllegalAccessException {
+        Field variables = SystemEnvironment.class.getDeclaredField("variables");
+        variables.setAccessible(true);
+        Map<String, String> variablesMap = (Map<String, String>) variables.get(env);
+        variablesMap.put(key, value);
     }
 
     public static File mkdirInPwd(String dirName) {
@@ -229,7 +236,7 @@ public class TestUtil {
     }
 
     public static File createTempFolder() {
-        final File file = new File(System.getProperty(FileUtil.TMP_DIR), UUID.randomUUID().toString());
+        final File file = new File(System.getProperty(SystemEnvironment.TMP_DIR), UUID.randomUUID().toString());
         file.mkdirs();
         file.deleteOnExit();
         return file;

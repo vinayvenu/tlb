@@ -57,7 +57,7 @@ public class TlbServerInitializerTest {
     @Test
     public void shouldInitializeTlbToRunOnConfiguredPort() {
         systemEnv.put(TlbConstants.Server.TLB_PORT, "1234");
-        assertThat(initializer.appPort(), is(1234));
+        assertThat(new TlbServerInitializer(new SystemEnvironment(systemEnv)).appPort(), is(1234));
     }
 
     @Test
@@ -104,6 +104,7 @@ public class TlbServerInitializerTest {
     public void shouldHonorDiskStorageRootOverride() throws IOException, ClassNotFoundException {
         String tmpDir = TestUtil.createTempFolder().getAbsolutePath();
         systemEnv.put(TlbConstants.Server.TLB_STORE_DIR, tmpDir);
+        initializer = new TlbServerInitializer(new SystemEnvironment(systemEnv));
         EntryRepoFactory factory = initializer.repoFactory();
         File file = new File(tmpDir, EntryRepoFactory.name("quux", LATEST_VERSION, EntryRepoFactory.SUBSET_SIZE));
         ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(file));

@@ -24,6 +24,7 @@ import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
+import static tlb.TestUtil.updateEnv;
 
 /**
  * This in addition to being a talk-to-tlb-server test is also a tlb-server integration test,
@@ -35,6 +36,7 @@ public class TalkToTlbServerTest {
     private static String freePort;
     private HashMap<String,String> clientEnv;
     private DefaultHttpAction httpAction;
+    private SystemEnvironment env;
 
     @BeforeClass
     public static void startTlbServer() throws Exception {
@@ -64,28 +66,29 @@ public class TalkToTlbServerTest {
         clientEnv.put(TlbConstants.TlbServer.URL, url);
         HttpClientParams params = new HttpClientParams();
         httpAction = new DefaultHttpAction(new HttpClient(params), new URI(url, true));
-        talkToTlb = new TalkToTlbServer(new SystemEnvironment(clientEnv), httpAction);
+        env = new SystemEnvironment(clientEnv);
+        talkToTlb = new TalkToTlbServer(env, httpAction);
     }
 
     @Test
-    public void shouldBeAbleToPostSubsetSize() {
+    public void shouldBeAbleToPostSubsetSize() throws NoSuchFieldException, IllegalAccessException {
         talkToTlb.publishSubsetSize(10);
         talkToTlb.publishSubsetSize(20);
         talkToTlb.publishSubsetSize(17);
         assertThat(httpAction.get(String.format("http://localhost:%s/job-4/subset_size", freePort)), is("10\n20\n17\n"));
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "5");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "5");
         talkToTlb.publishSubsetSize(12);
         talkToTlb.publishSubsetSize(13);
         assertThat(httpAction.get(String.format("http://localhost:%s/job-5/subset_size", freePort)), is("12\n13\n"));
     }
 
     @Test
-    public void shouldBeAbleToPostSuiteTime() {
+    public void shouldBeAbleToPostSuiteTime() throws NoSuchFieldException, IllegalAccessException {
         talkToTlb.testClassTime("com.foo.Foo", 100);
         talkToTlb.testClassTime("com.bar.Bar", 120);
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "2");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "2");
         talkToTlb.testClassTime("com.baz.Baz", 15);
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "15");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "15");
         talkToTlb.testClassTime("com.quux.Quux", 137);
         final String response = httpAction.get(String.format("http://localhost:%s/job/suite_time", freePort));
         final List<SuiteTimeEntry> entryList = SuiteTimeEntry.parse(response);
@@ -97,14 +100,14 @@ public class TalkToTlbServerTest {
     }
 
     @Test
-    public void shouldBeAbleToPostSuiteTimeToSmoothingRepo() {
-        clientEnv.put(TlbConstants.TlbServer.JOB_NAMESPACE, "foo-job");
-        clientEnv.put(TlbConstants.TlbServer.USE_SMOOTHING, "true");
+    public void shouldBeAbleToPostSuiteTimeToSmoothingRepo() throws NoSuchFieldException, IllegalAccessException {
+        updateEnv(env, TlbConstants.TlbServer.JOB_NAMESPACE, "foo-job");
+        updateEnv(env, TlbConstants.TlbServer.USE_SMOOTHING, "true");
         talkToTlb.testClassTime("com.foo.Foo", 100);
         talkToTlb.testClassTime("com.bar.Bar", 120);
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "2");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "2");
         talkToTlb.testClassTime("com.baz.Baz", 15);
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "15");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "15");
         talkToTlb.testClassTime("com.quux.Quux", 137);
         talkToTlb.testClassTime("com.foo.Foo", 500);
         String response = httpAction.get(String.format("http://localhost:%s/foo-job/suite_time", freePort));
@@ -120,12 +123,12 @@ public class TalkToTlbServerTest {
     }
 
     @Test
-    public void shouldBeAbleToPostSuiteResult() {
+    public void shouldBeAbleToPostSuiteResult() throws NoSuchFieldException, IllegalAccessException {
         talkToTlb.testClassFailure("com.foo.Foo", true);
         talkToTlb.testClassFailure("com.bar.Bar", false);
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "2");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "2");
         talkToTlb.testClassFailure("com.baz.Baz", true);
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "15");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "15");
         talkToTlb.testClassFailure("com.quux.Quux", true);
         final String response = httpAction.get(String.format("http://localhost:%s/job/suite_result", freePort));
         final List<SuiteResultEntry> entryList = SuiteResultEntry.parse(response);
@@ -137,7 +140,7 @@ public class TalkToTlbServerTest {
     }
 
     @Test
-    public void shouldBeAbleToFetchSuiteTimesUnaffectedByFurtherUpdates() {
+    public void shouldBeAbleToFetchSuiteTimesUnaffectedByFurtherUpdates() throws NoSuchFieldException, IllegalAccessException {
         final String url = String.format("http://localhost:%s/job/suite_time", freePort);
         httpAction.put(url, "com.foo.Foo: 10");
         httpAction.put(url, "com.bar.Bar: 12");
@@ -161,7 +164,7 @@ public class TalkToTlbServerTest {
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.baz.Baz", 17)));
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.quux.Quux", 150)));
 
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "2");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "2");
         entryList = talkToTlb.getLastRunTestTimes();
         assertThat(entryList.size(), is(4));
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.foo.Foo", 10)));
@@ -170,7 +173,7 @@ public class TalkToTlbServerTest {
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.quux.Quux", 150)));
 
         //should fetch latest for unknown version
-        clientEnv.put(TlbConstants.TlbServer.JOB_VERSION, "bar");
+        updateEnv(env, TlbConstants.TlbServer.JOB_VERSION, "bar");
         entryList = talkToTlb.getLastRunTestTimes();
         assertThat(entryList.size(), is(5));
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.foo.Foo", 18)));
@@ -181,9 +184,9 @@ public class TalkToTlbServerTest {
     }
 
     @Test
-    public void shouldBeAbleToFetchSmoohedSuiteTimesUnaffectedByFurtherUpdates() {
-        clientEnv.put(TlbConstants.TlbServer.JOB_NAMESPACE, "bar-job");
-        clientEnv.put(TlbConstants.TlbServer.USE_SMOOTHING, "true");
+    public void shouldBeAbleToFetchSmoohedSuiteTimesUnaffectedByFurtherUpdates() throws NoSuchFieldException, IllegalAccessException {
+        updateEnv(env, TlbConstants.TlbServer.JOB_NAMESPACE, "bar-job");
+        updateEnv(env, TlbConstants.TlbServer.USE_SMOOTHING, "true");
         final String url = String.format("http://localhost:%s/bar-job/smoothed_suite_time", freePort);
         httpAction.put(url, "com.foo.Foo: 10");
         httpAction.put(url, "com.bar.Bar: 12");
@@ -208,7 +211,7 @@ public class TalkToTlbServerTest {
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.baz.Baz", 17)));
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.quux.Quux", 150)));
 
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "2");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "2");
         entryList = talkToTlb.getLastRunTestTimes();
         assertThat(entryList.size(), is(4));
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.foo.Foo", 19)));
@@ -217,7 +220,7 @@ public class TalkToTlbServerTest {
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.quux.Quux", 150)));
 
         //should fetch latest for unknown version
-        clientEnv.put(TlbConstants.TlbServer.JOB_VERSION, "bar");
+        updateEnv(env, TlbConstants.TlbServer.JOB_VERSION, "bar");
         entryList = talkToTlb.getLastRunTestTimes();
         assertThat(entryList.size(), is(5));
         assertThat(entryList, hasItem(new SuiteTimeEntry("com.foo.Foo", 67)));
@@ -228,7 +231,7 @@ public class TalkToTlbServerTest {
     }
 
     @Test
-    public void shouldBeAbleToFetchSuiteResults() {
+    public void shouldBeAbleToFetchSuiteResults() throws NoSuchFieldException, IllegalAccessException {
         final String url = String.format("http://localhost:%s/job/suite_result", freePort);
         httpAction.put(url, "com.foo.Foo: true");
         httpAction.put(url, "com.bar.Bar: false");
@@ -242,7 +245,7 @@ public class TalkToTlbServerTest {
         assertThat(entryList, hasItem(new SuiteResultEntry("com.baz.Baz", false)));
         assertThat(entryList, hasItem(new SuiteResultEntry("com.quux.Quux", true)));
 
-        clientEnv.put(TlbConstants.TlbServer.PARTITION_NUMBER, "2");
+        updateEnv(env, TlbConstants.TlbServer.PARTITION_NUMBER, "2");
         entryList = talkToTlb.getLastRunFailedTests();
         assertThat(entryList.size(), is(4));
         assertThat(entryList, hasItem(new SuiteResultEntry("com.foo.Foo", true)));
@@ -252,9 +255,9 @@ public class TalkToTlbServerTest {
     }
     
     @Test
-    public void shouldReadTotalPartitionsFromEnvironmentVariables() {
+    public void shouldReadTotalPartitionsFromEnvironmentVariables() throws NoSuchFieldException, IllegalAccessException {
         assertThat(talkToTlb.totalPartitions(), is(15));
-        clientEnv.put(TlbConstants.TlbServer.TOTAL_PARTITIONS, "7");
+        updateEnv(env, TlbConstants.TlbServer.TOTAL_PARTITIONS, "7");
         assertThat(talkToTlb.totalPartitions(), is(7));
     }
 }
