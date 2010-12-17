@@ -16,12 +16,10 @@ import java.util.logging.Logger;
  */
 public class TlbEntryRepository {
     private static final Logger logger = Logger.getLogger(TlbEntryRepository.class.getName());
-    private File directory;
-    private String fileName;
+    private final File file;
 
-    public TlbEntryRepository(String directory, String fileName) {
-        this.directory = new File(directory);
-        this.fileName = fileName;
+    public TlbEntryRepository(final File file) {
+        this.file = file;
     }
 
     public void appendLine(String line) {
@@ -58,7 +56,7 @@ public class TlbEntryRepository {
     }
 
     public File getFile() {
-        return new File(directory, fileName);
+        return file;
     }
 
     public void cleanup() throws IOException {

@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -88,9 +89,9 @@ public class TalkToGoServer implements TalkToService {
         subsetSize = null;
         jobLocator = String.format("%s/%s/%s/%s/%s", v(Cruise.CRUISE_PIPELINE_NAME), v(Cruise.CRUISE_PIPELINE_LABEL), v(Cruise.CRUISE_STAGE_NAME), v(Cruise.CRUISE_STAGE_COUNTER), v(Cruise.CRUISE_JOB_NAME));
         FileUtil fileUtil = new FileUtil(environment);
-        testTimesRepository = new TlbEntryRepository(fileUtil.tmpDir(), DigestUtils.md5Hex(jobLocator));
-        subsetSizeRepository = new TlbEntryRepository(fileUtil.tmpDir(), DigestUtils.md5Hex(String.format("%s/subset_size", jobLocator)));
-        failedTestsRepository = new TlbEntryRepository(fileUtil.tmpDir(), DigestUtils.md5Hex(String.format("%s/failed_tests", jobLocator)));
+        testTimesRepository = new TlbEntryRepository(fileUtil.getUniqueFile("test_times"));
+        subsetSizeRepository = new TlbEntryRepository(fileUtil.getUniqueFile("subset_size"));
+        failedTestsRepository = new TlbEntryRepository(fileUtil.getUniqueFile("failed_tests"));
         stageLocator = String.format("%s/%s/%s/%s", v(Cruise.CRUISE_PIPELINE_NAME), v(Cruise.CRUISE_PIPELINE_COUNTER), v(Cruise.CRUISE_STAGE_NAME), v(Cruise.CRUISE_STAGE_COUNTER));
     }
 

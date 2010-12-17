@@ -27,7 +27,7 @@ public class TlbEntryRepositoryTest {
             //ignore, file may not be there!
         }
 
-        TlbEntryRepository cruise = new TlbEntryRepository(tmpDir.getAbsolutePath(), "foo");
+        TlbEntryRepository cruise = new TlbEntryRepository(new File(new File(tmpDir.getAbsolutePath()), "foo"));
 
         logFixture.startListening();
         cruise.appendLine("hello world\n");
