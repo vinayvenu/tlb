@@ -241,4 +241,23 @@ public class TestUtil {
         file.deleteOnExit();
         return file;
     }
+
+    public static Object deref(String fieldName, Object fromObject) throws IllegalAccessException {
+        Class klass = fromObject.getClass();
+        Field field = getField(fieldName, klass);
+        field.setAccessible(true);
+        return field.get(fromObject);
+    }
+
+    private static Field getField(String fieldName, Class klass) {
+        try {
+            return klass.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            Class superKlass = klass.getSuperclass();
+            if (superKlass.equals(Object.class)) {
+                throw new RuntimeException(String.format("field %s could not be found in any of the classes in the hirarchy", fieldName), e);
+            }
+            return getField(fieldName, superKlass);
+        }
+    }
 }

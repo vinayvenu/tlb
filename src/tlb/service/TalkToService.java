@@ -21,7 +21,7 @@ public interface TalkToService {
 
     void publishSubsetSize(int size);
 
-    void clearSuiteTimeCachingFile();
+    void clearCachingFiles();
 
     int partitionNumber();
 

@@ -69,7 +69,7 @@ public class TalkToTlbServer implements TalkToService {
         httpAction.post(getUrl(jobName(), EntryRepoFactory.SUBSET_SIZE), String.valueOf(size));
     }
 
-    public void clearSuiteTimeCachingFile() {
+    public void clearCachingFiles() {
         //NOOP
         //TODO: if chattiness becomes a problem, this will need to be implemented sensibly
     }

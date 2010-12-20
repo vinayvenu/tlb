@@ -12,7 +12,6 @@ import tlb.storage.TlbEntryRepository;
 import tlb.utils.FileUtil;
 import tlb.utils.SystemEnvironment;
 import tlb.utils.XmlUtil;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.URI;
@@ -22,7 +21,6 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -134,7 +132,7 @@ public class TalkToGoServer implements TalkToService {
         if (subsetSize() == testTimes.size()) {
             logger.info(String.format("Posting test run times for %s suite to the cruise server.", subsetSize()));
             postLinesToServer(SuiteTimeEntry.dump(SuiteTimeEntry.parse(testTimes)), artifactFileUrl(TEST_TIME_FILE));
-            clearSuiteTimeCachingFile();
+            clearCachingFiles();
         }
     }
 
@@ -233,7 +231,7 @@ public class TalkToGoServer implements TalkToService {
         httpAction.put(artifactFileUrl(TlbConstants.TEST_SUBSET_SIZE_FILE), line);
     }
 
-    public void clearSuiteTimeCachingFile() {
+    public void clearCachingFiles() {
         for (TlbEntryRepository repository : Arrays.asList(subsetSizeRepository, testTimesRepository, failedTestsRepository)) {
             try {
                 repository.cleanup();

@@ -98,7 +98,7 @@ public class TalkToGoServerTest {
         String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/" + TalkToGoServer.TEST_TIME_FILE;
 
         TalkToGoServer cruise = new TalkToGoServer(environment, action);
-        cruise.clearSuiteTimeCachingFile();
+        cruise.clearCachingFiles();
         cruise.subsetSizeRepository.appendLine("1\n");
 
         logFixture.startListening();
@@ -116,7 +116,7 @@ public class TalkToGoServerTest {
         when(action.put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "20")).thenReturn("File tlb/subset_size was appended successfully");
         when(action.put("http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/tlb/subset_size", "25")).thenReturn("File tlb/subset_size was appended successfully");
         TalkToGoServer toCruise = new TalkToGoServer(environment, action);
-        toCruise.clearSuiteTimeCachingFile();
+        toCruise.clearCachingFiles();
         logFixture.startListening();
         toCruise.publishSubsetSize(10);
         logFixture.assertHeard("Posting balanced subset size as 10 to cruise server");
@@ -149,7 +149,7 @@ public class TalkToGoServerTest {
         String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/" + TalkToGoServer.TEST_TIME_FILE;
 
         TalkToGoServer cruise = new TalkToGoServer(env, action);
-        cruise.clearSuiteTimeCachingFile();
+        cruise.clearCachingFiles();
         cruise.subsetSizeRepository.appendLine("5\n");
         cruise.testClassTime("com.thoughtworks.tlb.TestSuite", 12);
         assertCacheState(env, 1, "com.thoughtworks.tlb.TestSuite: 12", cruise.testTimesRepository);
@@ -180,7 +180,7 @@ public class TalkToGoServerTest {
         String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/" + TalkToGoServer.FAILED_TESTS_FILE;
 
         TalkToGoServer cruise = new TalkToGoServer(env, action);
-        cruise.clearSuiteTimeCachingFile();
+        cruise.clearCachingFiles();
         cruise.subsetSizeRepository.appendLine("3\n\10\n6\n");
         cruise.testClassFailure("com.thoughtworks.tlb.PassingSuite", false);
         assertCacheState(env, 1, "com.thoughtworks.tlb.PassingSuite: false", cruise.failedTestsRepository);
@@ -215,7 +215,7 @@ public class TalkToGoServerTest {
         String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/job-baz/" + TalkToGoServer.TEST_TIME_FILE;
         
         TalkToGoServer cruise = new TalkToGoServer(env, action);
-        cruise.clearSuiteTimeCachingFile();
+        cruise.clearCachingFiles();
         cruise.subsetSizeRepository.appendLine("5\n10\n3\n");
         cruise.testClassTime("com.thoughtworks.tlb.TestSuite", 12);
         assertCacheState(env, 1, "com.thoughtworks.tlb.TestSuite: 12", cruise.testTimesRepository);

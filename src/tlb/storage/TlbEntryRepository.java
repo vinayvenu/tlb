@@ -60,7 +60,9 @@ public class TlbEntryRepository {
     }
 
     public void cleanup() throws IOException {
-        FileUtils.forceDelete(getFile());
+        if (getFile().exists()) {
+            FileUtils.forceDelete(getFile());
+        }
     }
 
     public String loadLastLine() {

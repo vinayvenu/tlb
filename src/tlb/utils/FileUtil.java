@@ -21,9 +21,32 @@ public class FileUtil {
     }
 
     public String tmpDir() {
-        return env.tmpDir();
+        File tmpDir = new File(env.tmpDir());
+        createDirIfNecessary(tmpDir);
+        return tmpDir.getAbsolutePath();
     }
 
+    private void createDirIfNecessary(final File tmpDirectory) {
+        final String tmpDir = tmpDirectory.getAbsolutePath();
+        logger.info(String.format("checking for existance of directory %s as tlb tmpdir", tmpDir));
+        if (tmpDirectory.exists()) {
+            if (! tmpDirectory.isDirectory()) {
+                String fileInsteedOfDirectoryMessage = String.format("tlb tmp dir %s is a file, it must be a directory", tmpDir);
+                logger.warning(fileInsteedOfDirectoryMessage);
+                throw new IllegalStateException(fileInsteedOfDirectoryMessage);
+            }
+            logger.info(String.format("directory %s exists, creation not required", tmpDir));
+        } else {
+            logger.info(String.format("directory %s doesn't exist, creating it now", tmpDir));
+            try {
+                FileUtils.forceMkdir(tmpDirectory);
+            } catch (IOException e) {
+                logger.log(Level.WARNING, String.format("could not create directory %s", tmpDirectory.getAbsolutePath()), e);
+                throw new RuntimeException(e);
+            }
+            logger.info(String.format("created directory %s, which is to be used as tlb tmp dir.", tmpDir));
+        }
+    }
     public String classFileRelativePath(String testClass) {
         return testClass.replaceAll("\\.", "/") + ".class";
     }

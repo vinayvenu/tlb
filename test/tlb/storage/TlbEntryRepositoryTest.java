@@ -8,6 +8,9 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 public class TlbEntryRepositoryTest {
     private TestUtil.LogFixture logFixture;
 
@@ -38,5 +41,13 @@ public class TlbEntryRepositoryTest {
         logFixture.assertHeard(String.format("Wrote [ foo bar baz quux\n ] to %s", file.getAbsolutePath()));
         cruise.load();
         logFixture.assertHeard(String.format("Cached 3 lines from %s, the last of which was [ foo bar baz quux ]", file.getAbsolutePath()));
+    }
+
+    @Test
+    public void shouldNotFailToCleanupWhenDataFileDoesNotExist() throws IOException {
+        TlbEntryRepository repo = new TlbEntryRepository(new File(TestUtil.createTempFolder(), "foo_bar_baz"));
+        assertThat(repo.getFile().exists(), is(false));
+        repo.cleanup();
+        assertThat(repo.getFile().exists(), is(false));
     }
 }
