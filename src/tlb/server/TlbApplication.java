@@ -30,9 +30,6 @@ public class TlbApplication extends Application {
         router.attach(String.format("/{%s}/%s", REQUEST_NAMESPACE, EntryRepoFactory.SUITE_TIME), SuiteTimeResource.class);
         router.attach(String.format("/{%s}/%s/{%s}", REQUEST_NAMESPACE, EntryRepoFactory.SUITE_TIME, LISTING_VERSION), VersionedSuiteTimeResource.class);
 
-        router.attach(String.format("/{%s}/%s", REQUEST_NAMESPACE, EntryRepoFactory.SMOOTHED_SUITE_TIME), SmoothingSuiteTimeResource.class);
-        router.attach(String.format("/{%s}/%s/{%s}", REQUEST_NAMESPACE, EntryRepoFactory.SMOOTHED_SUITE_TIME, LISTING_VERSION), VersionedSmoothingSuiteTimeResource.class);
-
         return router;
     }
 }

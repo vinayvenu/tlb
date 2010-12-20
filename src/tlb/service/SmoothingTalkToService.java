@@ -32,11 +32,9 @@ public abstract class SmoothingTalkToService implements TalkToService {
     }
 
     protected final SystemEnvironment environment;
-    protected final HttpAction httpAction;
 
-    protected SmoothingTalkToService(SystemEnvironment environment, HttpAction httpAction) {
+    protected SmoothingTalkToService(SystemEnvironment environment) {
         this.environment = environment;
-        this.httpAction = httpAction;
         FileUtil fileUtil = new FileUtil(this.environment);
         oldTestTimesRepo = new TlbEntryRepository(fileUtil.getUniqueFile("old_test_times"));
     }
@@ -52,7 +50,7 @@ public abstract class SmoothingTalkToService implements TalkToService {
     }
 
     private double smoothingFactor() {
-        return Double.parseDouble(environment.val(TlbConstants.Server.SMOOTHING_FACTOR));
+        return Double.parseDouble(environment.val(TlbConstants.Server.SMOOTHING_FACTOR, "1.0"));
     }
 
     private SuiteTimeEntry entryFor(String className) {

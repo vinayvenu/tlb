@@ -62,15 +62,12 @@ public class EntryRepoFactoryTest {
         SubsetSizeRepo subsetRepo = factory.createSubsetRepo("dev", LATEST_VERSION);
         SuiteTimeRepo suiteTimeRepo = factory.createSuiteTimeRepo("dev", LATEST_VERSION);
         SuiteResultRepo suiteResultRepo = factory.createSuiteResultRepo("dev", LATEST_VERSION);
-        SuiteTimeRepo smoothingSuiteTimeRepo = factory.createSmoothingSuiteTimeRepo("dev", LATEST_VERSION);
         assertThat(factory.createSubsetRepo("dev", LATEST_VERSION), sameInstance(subsetRepo));
         assertThat(subsetRepo, is(SubsetSizeRepo.class));
         assertThat(factory.createSuiteTimeRepo("dev", LATEST_VERSION), sameInstance(suiteTimeRepo));
         assertThat(suiteTimeRepo, is(SuiteTimeRepo.class));
         assertThat(factory.createSuiteResultRepo("dev", LATEST_VERSION), sameInstance(suiteResultRepo));
         assertThat(suiteResultRepo, is(SuiteResultRepo.class));
-        assertThat(factory.createSmoothingSuiteTimeRepo("dev", LATEST_VERSION), sameInstance(smoothingSuiteTimeRepo));
-        assertThat(smoothingSuiteTimeRepo, is(SmoothingSuiteTimeRepo.class));
     }
 
     @Test
@@ -109,10 +106,6 @@ public class EntryRepoFactoryTest {
         subsetResultRepo.update(new SuiteResultEntry("foo.bar.Baz", true));
         subsetResultRepo.update(new SuiteResultEntry("bar.baz.Quux", false));
 
-        SuiteTimeRepo smoothingSuiteTimeRepo = factory.createSmoothingSuiteTimeRepo("quux", LATEST_VERSION);
-        smoothingSuiteTimeRepo.update(new SuiteTimeEntry("foo.bar.Quux", 10));
-        smoothingSuiteTimeRepo.update(new SuiteTimeEntry("bar.baz.Bang", 20));
-
         Thread exitHook = factory.exitHook();
         exitHook.start();
         exitHook.join();
@@ -122,8 +115,6 @@ public class EntryRepoFactoryTest {
         assertThat(otherFactoryInstance.createSuiteTimeRepo("bar", LATEST_VERSION).list(), hasItems(new SuiteTimeEntry("foo.bar.Baz", 10), new SuiteTimeEntry("bar.baz.Quux", 20)));
         assertThat(otherFactoryInstance.createSuiteResultRepo("baz", LATEST_VERSION).list().size(), is(2));
         assertThat(otherFactoryInstance.createSuiteResultRepo("baz", LATEST_VERSION).list(), hasItems(new SuiteResultEntry("foo.bar.Baz", true), new SuiteResultEntry("bar.baz.Quux", false)));
-        assertThat(otherFactoryInstance.createSmoothingSuiteTimeRepo("quux", LATEST_VERSION).list().size(), is(2));
-        assertThat(otherFactoryInstance.createSmoothingSuiteTimeRepo("quux", LATEST_VERSION).list(), hasItems(new SuiteTimeEntry("foo.bar.Quux", 10), new SuiteTimeEntry("bar.baz.Bang", 20)));
     }
     
     @Test

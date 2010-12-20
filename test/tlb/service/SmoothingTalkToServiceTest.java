@@ -20,6 +20,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static tlb.TestUtil.deref;
+import static tlb.TestUtil.updateEnv;
 
 public class SmoothingTalkToServiceTest {
     private SystemEnvironment env;
@@ -36,7 +37,7 @@ public class SmoothingTalkToServiceTest {
         env = new SystemEnvironment(variables);
 
         delegate = mock(SmoothingTalkToService.class);
-        service = new DelegatingSmoothingTalkToService(delegate);
+        service = new DelegatingSmoothingTalkToService(delegate, env);
         FileUtils.delete(testTimeCacheRepo().getFile());
 
         logFixture = new TestUtil.LogFixture();
@@ -104,13 +105,21 @@ public class SmoothingTalkToServiceTest {
         service.clearCachingFiles();
         verify(delegate).clearOtherCachingFiles();
     }
+    
+    @Test
+    public void shouldAssumeNoOpSmoothingFactorWhenNotGiven() throws NoSuchFieldException, IllegalAccessException {
+        when(delegate.fetchLastRunTestTimes()).thenReturn(Arrays.asList(new SuiteTimeEntry("foo/bar/Baz.class", 12l)));
+        updateEnv(env, TlbConstants.Server.SMOOTHING_FACTOR, null);
+        service.testClassTime("foo/bar/Baz.class", 102l);
+        verify(delegate).processedTestClassTime("foo/bar/Baz.class", 102l);
+    }
 
-    private class DelegatingSmoothingTalkToService extends SmoothingTalkToService {
+    private static class DelegatingSmoothingTalkToService extends SmoothingTalkToService {
 
         private final SmoothingTalkToService delegate;
 
-        public DelegatingSmoothingTalkToService(SmoothingTalkToService delegate) {
-            super(env, null);
+        public DelegatingSmoothingTalkToService(SmoothingTalkToService delegate, final SystemEnvironment env) {
+            super(env);
             this.delegate = delegate;
         }
 

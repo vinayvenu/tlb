@@ -20,8 +20,7 @@ import static tlb.TlbConstants.TlbServer.URL;
 /**
  * @understands exchanging balancing/ordering related data with the TLB server
  */
-public class TalkToTlbServer implements TalkToService {
-    private final SystemEnvironment env;
+public class TalkToTlbServer extends SmoothingTalkToService {
     private final HttpAction httpAction;
 
     //reflectively invoked by factory
@@ -30,7 +29,7 @@ public class TalkToTlbServer implements TalkToService {
     }
 
     public TalkToTlbServer(SystemEnvironment systemEnvironment, HttpAction httpAction) {
-        env = systemEnvironment;
+        super(systemEnvironment);
         this.httpAction = httpAction;
     }
 
@@ -45,20 +44,20 @@ public class TalkToTlbServer implements TalkToService {
         return new DefaultHttpAction(client, uri);
     }
 
-    public void testClassTime(String className, long time) {
+    public void processedTestClassTime(String className, long time) {
         httpAction.put(getUrl(namespace(), suiteTimeRepoName()), String.format("%s: %s", className, time));
     }
 
     private String suiteTimeRepoName() {
-        return Boolean.parseBoolean(env.val(TlbConstants.TlbServer.USE_SMOOTHING, "false")) ? EntryRepoFactory.SMOOTHED_SUITE_TIME : EntryRepoFactory.SUITE_TIME;
+        return EntryRepoFactory.SUITE_TIME;
     }
 
     public void testClassFailure(String className, boolean hasFailed) {
         httpAction.put(suiteResultUrl(), new SuiteResultEntry(className, hasFailed).toString());
     }
 
-    public List<SuiteTimeEntry> getLastRunTestTimes() {
-        return SuiteTimeEntry.parse(httpAction.get(getUrl(namespace(), suiteTimeRepoName(), env.val(TlbConstants.TlbServer.JOB_VERSION))));
+    public List<SuiteTimeEntry> fetchLastRunTestTimes() {
+        return SuiteTimeEntry.parse(httpAction.get(getUrl(namespace(), suiteTimeRepoName(), environment.val(TlbConstants.TlbServer.JOB_VERSION))));
     }
 
     public List<SuiteResultEntry> getLastRunFailedTests() {
@@ -69,22 +68,22 @@ public class TalkToTlbServer implements TalkToService {
         httpAction.post(getUrl(jobName(), EntryRepoFactory.SUBSET_SIZE), String.valueOf(size));
     }
 
-    public void clearCachingFiles() {
+    public void clearOtherCachingFiles() {
         //NOOP
         //TODO: if chattiness becomes a problem, this will need to be implemented sensibly
     }
 
     public int partitionNumber() {
-        return Integer.parseInt(env.val(TlbConstants.TlbServer.PARTITION_NUMBER));
+        return Integer.parseInt(environment.val(TlbConstants.TlbServer.PARTITION_NUMBER));
     }
 
     public int totalPartitions() {
-        return Integer.parseInt(env.val(TlbConstants.TlbServer.TOTAL_PARTITIONS));
+        return Integer.parseInt(environment.val(TlbConstants.TlbServer.TOTAL_PARTITIONS));
     }
 
     private String getUrl(String... parts) {
         final StringBuilder builder = new StringBuilder();
-        builder.append(env.val(URL));
+        builder.append(environment.val(URL));
         for (String part : parts) {
             builder.append("/").append(part);
         }
@@ -100,6 +99,6 @@ public class TalkToTlbServer implements TalkToService {
     }
 
     private String namespace() {
-        return env.val(JOB_NAMESPACE);
+        return environment.val(JOB_NAMESPACE);
     }
 }
