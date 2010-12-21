@@ -230,8 +230,8 @@ public class TestUtil {
 
     public static SystemEnvironment initEnvironment(String jobName) {
         Map<String, String> map = new HashMap<String, String>();
-        map.put(TlbConstants.Cruise.CRUISE_JOB_NAME, jobName);
-        map.put(TlbConstants.Cruise.CRUISE_STAGE_NAME, "stage-1");
+        map.put(TlbConstants.Go.GO_JOB_NAME, jobName);
+        map.put(TlbConstants.Go.GO_STAGE_NAME, "stage-1");
         return new SystemEnvironment(map);
     }
 

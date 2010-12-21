@@ -43,7 +43,7 @@ public abstract class JobFamilyAwareSplitterCriteria extends TestSplitterCriteri
         }
 
         List<TlbSuiteFile> subset = subset(fileResources);
-        logger.info(String.format("assigned total of %s files to [ %s ]", subset.size(), env.val(TlbConstants.Cruise.CRUISE_JOB_NAME)));
+        logger.info(String.format("assigned total of %s files to [ %s ]", subset.size(), env.val(TlbConstants.Go.GO_JOB_NAME)));
         talkToService.publishSubsetSize(subset.size());
         return subset;
     }
@@ -63,7 +63,7 @@ public abstract class JobFamilyAwareSplitterCriteria extends TestSplitterCriteri
     }
 
     protected String jobName() {
-        return env.val(TlbConstants.Cruise.CRUISE_JOB_NAME);
+        return env.val(TlbConstants.Go.GO_JOB_NAME);
     }
 
 }

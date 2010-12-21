@@ -33,7 +33,7 @@ public class SmoothingTalkToServiceTest {
     public void setUp() throws IllegalAccessException {
         fetchedEntries = new ArrayList<SuiteTimeEntry>();
         HashMap<String, String> variables = new HashMap<String, String>();
-        variables.put(TlbConstants.Server.SMOOTHING_FACTOR, "0.05");
+        variables.put(TlbConstants.SMOOTHING_FACTOR, "0.05");
         env = new SystemEnvironment(variables);
 
         delegate = mock(SmoothingTalkToService.class);
@@ -109,7 +109,7 @@ public class SmoothingTalkToServiceTest {
     @Test
     public void shouldAssumeNoOpSmoothingFactorWhenNotGiven() throws NoSuchFieldException, IllegalAccessException {
         when(delegate.fetchLastRunTestTimes()).thenReturn(Arrays.asList(new SuiteTimeEntry("foo/bar/Baz.class", 12l)));
-        updateEnv(env, TlbConstants.Server.SMOOTHING_FACTOR, null);
+        updateEnv(env, TlbConstants.SMOOTHING_FACTOR, null);
         service.testClassTime("foo/bar/Baz.class", 102l);
         verify(delegate).processedTestClassTime("foo/bar/Baz.class", 102l);
     }

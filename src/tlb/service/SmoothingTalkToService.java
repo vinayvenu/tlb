@@ -2,7 +2,6 @@ package tlb.service;
 
 import tlb.TlbConstants;
 import tlb.domain.SuiteTimeEntry;
-import tlb.service.http.HttpAction;
 import tlb.storage.TlbEntryRepository;
 import tlb.utils.FileUtil;
 import tlb.utils.SystemEnvironment;
@@ -50,7 +49,7 @@ public abstract class SmoothingTalkToService implements TalkToService {
     }
 
     private double smoothingFactor() {
-        return Double.parseDouble(environment.val(TlbConstants.Server.SMOOTHING_FACTOR, "1.0"));
+        return Double.parseDouble(environment.val(TlbConstants.SMOOTHING_FACTOR, "1.0"));
     }
 
     private SuiteTimeEntry entryFor(String className) {

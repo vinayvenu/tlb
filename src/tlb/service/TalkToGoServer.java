@@ -60,12 +60,12 @@ public class TalkToGoServer extends SmoothingTalkToService {
         super(environment);
         this.httpAction = httpAction;
         subsetSize = null;
-        jobLocator = String.format("%s/%s/%s/%s/%s", v(Cruise.CRUISE_PIPELINE_NAME), v(Cruise.CRUISE_PIPELINE_LABEL), v(Cruise.CRUISE_STAGE_NAME), v(Cruise.CRUISE_STAGE_COUNTER), v(Cruise.CRUISE_JOB_NAME));
+        jobLocator = String.format("%s/%s/%s/%s/%s", v(Go.GO_PIPELINE_NAME), v(Go.GO_PIPELINE_LABEL), v(Go.GO_STAGE_NAME), v(Go.GO_STAGE_COUNTER), v(Go.GO_JOB_NAME));
         FileUtil fileUtil = new FileUtil(environment);
         testTimesRepository = new TlbEntryRepository(fileUtil.getUniqueFile("test_times"));
         subsetSizeRepository = new TlbEntryRepository(fileUtil.getUniqueFile("subset_size"));
         failedTestsRepository = new TlbEntryRepository(fileUtil.getUniqueFile("failed_tests"));
-        stageLocator = String.format("%s/%s/%s/%s", v(Cruise.CRUISE_PIPELINE_NAME), v(Cruise.CRUISE_PIPELINE_COUNTER), v(Cruise.CRUISE_STAGE_NAME), v(Cruise.CRUISE_STAGE_COUNTER));
+        stageLocator = String.format("%s/%s/%s/%s", v(Go.GO_PIPELINE_NAME), v(Go.GO_PIPELINE_COUNTER), v(Go.GO_STAGE_NAME), v(Go.GO_STAGE_COUNTER));
     }
 
     private static HttpClient createHttpClient(SystemEnvironment environment) {
@@ -82,7 +82,7 @@ public class TalkToGoServer extends SmoothingTalkToService {
 
     private static URI createUri(SystemEnvironment environment) {
         try {
-            return new URI(environment.val(TlbConstants.Cruise.CRUISE_SERVER_URL), true);
+            return new URI(environment.val(Go.GO_SERVER_URL), true);
         } catch (URIException e) {
             throw new RuntimeException(e);
         }
@@ -113,7 +113,7 @@ public class TalkToGoServer extends SmoothingTalkToService {
     }
 
     private Object cruiseUrl() {
-        String url = v(Cruise.CRUISE_SERVER_URL);
+        String url = v(Go.GO_SERVER_URL);
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
@@ -169,7 +169,7 @@ public class TalkToGoServer extends SmoothingTalkToService {
     }
 
     private List<String> lastRunArtifactUrls(List<String> jobNames, String urlSuffix) {
-        String stageFeedUrl = String.format("%s/api/pipelines/%s/stages.xml", cruiseUrl(), v(Cruise.CRUISE_PIPELINE_NAME));
+        String stageFeedUrl = String.format("%s/api/pipelines/%s/stages.xml", cruiseUrl(), v(Go.GO_PIPELINE_NAME));
         String stageDetailUrl = lastRunStageDetailUrl(stageFeedUrl);
         List<Attribute> jobLinks = jobLinks(stageDetailUrl);
         return tlbArtifactUrls(jobLinks, jobNames, urlSuffix);
@@ -218,8 +218,8 @@ public class TalkToGoServer extends SmoothingTalkToService {
         if (!matcher.matches()) {
             return false;
         }
-        boolean samePipeline = environment.val(Cruise.CRUISE_PIPELINE_NAME).equals(matcher.group(1));
-        boolean sameStage = environment.val(Cruise.CRUISE_STAGE_NAME).equals(matcher.group(2));
+        boolean samePipeline = environment.val(Go.GO_PIPELINE_NAME).equals(matcher.group(1));
+        boolean sameStage = environment.val(Go.GO_STAGE_NAME).equals(matcher.group(2));
         return samePipeline && sameStage;
     }
 
@@ -249,7 +249,7 @@ public class TalkToGoServer extends SmoothingTalkToService {
     }
 
     protected String jobName() {
-        return environment.val(Cruise.CRUISE_JOB_NAME);
+        return environment.val(Go.GO_JOB_NAME);
     }
 
     private String jobBaseName() {

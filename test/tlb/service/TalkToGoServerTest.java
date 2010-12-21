@@ -24,7 +24,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static tlb.TestUtil.fileContents;
-import static tlb.TlbConstants.Cruise;
+import static tlb.TlbConstants.Go;
 import static tlb.TlbConstants.TLB_TMP_DIR;
 
 public class TalkToGoServerTest {
@@ -50,7 +50,7 @@ public class TalkToGoServerTest {
     @Test
     public void shouldUnderstandPartitionsForPearJobsIdentifiedByNumber() throws Exception{
         Map<String, String> envMap = initEnvMap("http://test.host:8153/go");
-        envMap.put(Cruise.CRUISE_JOB_NAME, "firefox-2");
+        envMap.put(TlbConstants.Go.GO_JOB_NAME, "firefox-2");
         SystemEnvironment environment = new SystemEnvironment(envMap);
         HttpAction action = mock(HttpAction.class);
 
@@ -67,7 +67,7 @@ public class TalkToGoServerTest {
     @Test
     public void shouldUnderstandPartitionsForPearJobsIdentifiedOnUUID() throws Exception{
         Map<String, String> envMap = initEnvMap("http://test.host:8153/go");
-        envMap.put(Cruise.CRUISE_JOB_NAME, "firefox-bbcdef12-1234-1234-1234-abcdef123456");
+        envMap.put(Go.GO_JOB_NAME, "firefox-bbcdef12-1234-1234-1234-abcdef123456");
         SystemEnvironment environment = new SystemEnvironment(envMap);
         HttpAction action = mock(HttpAction.class);
 
@@ -235,8 +235,8 @@ public class TalkToGoServerTest {
     @Test
     public void shouldUpdateCruiseArtifactWithSmoothenedTestTimes() throws Exception {
         Map<String, String> envMap = initEnvMap("http://test.host:8153/go");
-        envMap.put(Cruise.CRUISE_JOB_NAME, "firefox-2");
-        envMap.put(TlbConstants.Server.SMOOTHING_FACTOR, "0.5");
+        envMap.put(TlbConstants.Go.GO_JOB_NAME, "firefox-2");
+        envMap.put(TlbConstants.SMOOTHING_FACTOR, "0.5");
         SystemEnvironment env = new SystemEnvironment(envMap);
         HttpAction action = mock(HttpAction.class);
 
@@ -364,8 +364,8 @@ public class TalkToGoServerTest {
         when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
         when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2_with_new_lines.properties"));
         Map<String, String> envMap = initEnvMap("http://test.host:8153/go");
-        envMap.put(Cruise.CRUISE_PIPELINE_NAME, "pipeline-foo");
-        envMap.put(Cruise.CRUISE_STAGE_NAME, "stage-foo-quux");
+        envMap.put(TlbConstants.Go.GO_PIPELINE_NAME, "pipeline-foo");
+        envMap.put(TlbConstants.Go.GO_STAGE_NAME, "stage-foo-quux");
         TalkToGoServer service = new TalkToGoServer(new SystemEnvironment(envMap), action);
         List<SuiteTimeEntry> runTimes = service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
         List<SuiteTimeEntry> expected = new ArrayList<SuiteTimeEntry>();
@@ -401,13 +401,13 @@ public class TalkToGoServerTest {
 
     private Map<String, String> initEnvMap(String url) {
         Map<String, String> map = new HashMap<String, String>();
-        map.put(Cruise.CRUISE_SERVER_URL, url);
-        map.put(Cruise.CRUISE_PIPELINE_NAME, "pipeline-foo");
-        map.put(Cruise.CRUISE_PIPELINE_LABEL, "pipeline-foo-26");
-        map.put(Cruise.CRUISE_JOB_NAME, "job-baz");
-        map.put(Cruise.CRUISE_STAGE_NAME, "stage-foo-bar");
-        map.put(Cruise.CRUISE_STAGE_COUNTER, "1");
-        map.put(Cruise.CRUISE_PIPELINE_COUNTER, "26");
+        map.put(Go.GO_SERVER_URL, url);
+        map.put(TlbConstants.Go.GO_PIPELINE_NAME, "pipeline-foo");
+        map.put(TlbConstants.Go.GO_PIPELINE_LABEL, "pipeline-foo-26");
+        map.put(TlbConstants.Go.GO_JOB_NAME, "job-baz");
+        map.put(TlbConstants.Go.GO_STAGE_NAME, "stage-foo-bar");
+        map.put(Go.GO_STAGE_COUNTER, "1");
+        map.put(TlbConstants.Go.GO_PIPELINE_COUNTER, "26");
         map.put(TLB_TMP_DIR, System.getProperty("java.io.tmpdir"));
         return map;
     }

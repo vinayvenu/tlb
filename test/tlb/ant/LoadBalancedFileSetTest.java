@@ -23,7 +23,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static tlb.TlbConstants.Cruise.CRUISE_SERVER_URL;
+import static tlb.TlbConstants.Go.GO_SERVER_URL;
 import static tlb.TlbConstants.TLB_CRITERIA;
 
 public class LoadBalancedFileSetTest {
@@ -129,7 +129,7 @@ public class LoadBalancedFileSetTest {
     private SystemEnvironment initEnvironment(String strategyName) {
         Map<String, String> map = new HashMap<String, String>();
         map.put(TLB_CRITERIA, strategyName);
-        map.put(CRUISE_SERVER_URL, "https://localhost:8154/cruise");
+        map.put(GO_SERVER_URL, "https://localhost:8154/cruise");
         return new SystemEnvironment(map);
     }
 }

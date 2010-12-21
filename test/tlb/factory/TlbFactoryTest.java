@@ -127,7 +127,7 @@ public class TlbFactoryTest {
     @Test
     public void shouldReturnTalkToCruise() {
         final Map<String, String> map = new HashMap<String, String>();
-        map.put(TlbConstants.Cruise.CRUISE_SERVER_URL, "http://localhost:8153/cruise");
+        map.put(TlbConstants.Go.GO_SERVER_URL, "http://localhost:8153/cruise");
         map.put(TlbConstants.TALK_TO_SERVICE, "tlb.service.TalkToGoServer");
         TalkToService talkToService = TlbFactory.getTalkToService(new SystemEnvironment(map));
         assertThat(talkToService, is(TalkToGoServer.class));
@@ -153,7 +153,7 @@ public class TlbFactoryTest {
 
     private SystemEnvironment env(String talkToService) {
         HashMap<String, String> map = new HashMap<String, String>();
-        map.put(TlbConstants.Cruise.CRUISE_SERVER_URL, "https://localhost:8154/cruise");
+        map.put(TlbConstants.Go.GO_SERVER_URL, "https://localhost:8154/cruise");
         map.put(TlbConstants.TlbServer.URL, "http://localhost:7019");
         map.put(TlbConstants.TALK_TO_SERVICE, talkToService);
         return new SystemEnvironment(map);

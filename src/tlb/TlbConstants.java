@@ -6,14 +6,14 @@ package tlb;
 public interface TlbConstants {
     static final String TALK_TO_SERVICE = "TALK_TO_SERVICE";
 
-    public interface Cruise {
-        static final String CRUISE_SERVER_URL = "CRUISE_SERVER_URL";
-        static final String CRUISE_PIPELINE_NAME = "CRUISE_PIPELINE_NAME";
-        static final String CRUISE_STAGE_NAME = "CRUISE_STAGE_NAME";
-        static final String CRUISE_JOB_NAME = "CRUISE_JOB_NAME";
-        static final String CRUISE_STAGE_COUNTER = "CRUISE_STAGE_COUNTER";
-        static final String CRUISE_PIPELINE_COUNTER = "CRUISE_PIPELINE_COUNTER";
-        static final String CRUISE_PIPELINE_LABEL = "CRUISE_PIPELINE_LABEL";
+    public interface Go {
+        static final String GO_SERVER_URL = "GO_SERVER_URL";
+        static final String GO_PIPELINE_NAME = "GO_PIPELINE_NAME";
+        static final String GO_STAGE_NAME = "GO_STAGE_NAME";
+        static final String GO_JOB_NAME = "GO_JOB_NAME";
+        static final String GO_STAGE_COUNTER = "GO_STAGE_COUNTER";
+        static final String GO_PIPELINE_COUNTER = "GO_PIPELINE_COUNTER";
+        static final String GO_PIPELINE_LABEL = "GO_PIPELINE_LABEL";
     }
 
     public interface TlbServer {
@@ -31,6 +31,7 @@ public interface TlbConstants {
     static final String CRITERIA_DEFAULTING_ORDER = "CRITERIA_DEFAULTING_ORDER";
     static final String TLB_TMP_DIR = "TLB_TMP_DIR";
     static final String TLB_ORDERER = "TLB_ORDERER";
+    static final String SMOOTHING_FACTOR = "SMOOTHING_FACTOR";
 
     static final String TLB_APP = "TLB_APP";
 
@@ -46,7 +47,5 @@ public interface TlbConstants {
         static final String TLB_STORE_DIR = "tlb_store";
         static final String LISTING_VERSION = "listing_version";
         static final String VERSION_LIFE_IN_DAYS = "VERSION_LIFE_IN_DAYS";
-        static final String SMOOTHING_FACTOR = "SMOOTHING_FACTOR";
     }
-
 }

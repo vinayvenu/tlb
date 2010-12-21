@@ -18,7 +18,6 @@ import tlb.server.TlbServerInitializer;
 import tlb.service.http.DefaultHttpAction;
 import tlb.utils.SystemEnvironment;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +42,7 @@ public class TalkToTlbServerTest {
     @BeforeClass
     public static void startTlbServer() throws Exception {
         HashMap<String, String> serverEnv = new HashMap<String, String>();
-        serverEnv.put(TlbConstants.Server.SMOOTHING_FACTOR, "0.1");
+        serverEnv.put(TlbConstants.SMOOTHING_FACTOR, "0.1");
         freePort = TestUtil.findFreePort();
         serverEnv.put(TlbConstants.Server.TLB_PORT, freePort);
         serverEnv.put(TlbConstants.Server.TLB_STORE_DIR, TestUtil.createTempFolder().getAbsolutePath());
@@ -105,7 +104,7 @@ public class TalkToTlbServerTest {
     @Test
     public void shouldBeAbleToPostSmoothenedSuiteTimeToRepo() throws NoSuchFieldException, IllegalAccessException {
         updateEnv(env, TlbConstants.TlbServer.JOB_NAMESPACE, "foo-job");
-        updateEnv(env, TlbConstants.Server.SMOOTHING_FACTOR, "0.5");
+        updateEnv(env, TlbConstants.SMOOTHING_FACTOR, "0.5");
         String suiteTimeUrl = String.format("http://localhost:%s/foo-job/suite_time", freePort);
         httpAction.put(suiteTimeUrl, "com.foo.Foo: 100");
         httpAction.put(suiteTimeUrl, "com.bar.Bar: 120");
