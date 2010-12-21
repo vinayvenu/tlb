@@ -1,8 +1,8 @@
 <job name="firefox-bbcdef12-1234-1234-1234-abcdef123456">
 
-    <link rel="self" href="http://localhost:8153/go/api/jobs/141.xml"/>
+    <link rel="self" href="http://test.host:8153/go/api/jobs/141.xml"/>
     <pipeline name="pipeline" counter="5" label="5"/>
-    <stage name="build" counter="1" href="http://localhost:8153/go/api/stages/49.xml"/>
+    <stage name="build" counter="1" href="http://test.host:8153/go/api/stages/49.xml"/>
     <state>Completed</state>
     <result>Failed</result>
     <properties>
@@ -37,11 +37,11 @@
 
     </properties>
     <agent uuid="a895e249-df54-466e-8721-37040f4031eb"/>
-    <artifacts baseUri="http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2" pathFromArtifactRoot="pipelines/pipeline/1/stage/1/firefox-2">
+    <artifacts baseUri="http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2" pathFromArtifactRoot="pipelines/pipeline/1/stage/1/firefox-2">
 
-            <artifact href="http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/cruise-output/log.xml" path="cruise-output/log.xml" type="file"/>
+            <artifact href="http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/cruise-output/log.xml" path="cruise-output/log.xml" type="file"/>
 
-            <artifact href="http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/reports" path="reports" type="unit"/>
+            <artifact href="http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/reports" path="reports" type="unit"/>
 
     </artifacts>
 

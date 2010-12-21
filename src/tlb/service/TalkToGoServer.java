@@ -31,10 +31,9 @@ import java.util.regex.Pattern;
 /**
  * @understands requesting and posting information to/from cruise
  */
-public class TalkToGoServer implements TalkToService {
+public class TalkToGoServer extends SmoothingTalkToService {
     private static final Logger logger = Logger.getLogger(TalkToGoServer.class.getName());
 
-    private final SystemEnvironment environment;
     private final HttpAction httpAction;
     private static final String JOB_NAME = "name";
     protected static final String TEST_TIME_FILE = "tlb/test_time.properties";
@@ -55,6 +54,18 @@ public class TalkToGoServer implements TalkToService {
 
     public TalkToGoServer(SystemEnvironment environment) {
         this(environment, createHttpAction(environment));
+    }
+
+    public TalkToGoServer(SystemEnvironment environment, HttpAction httpAction) {
+        super(environment);
+        this.httpAction = httpAction;
+        subsetSize = null;
+        jobLocator = String.format("%s/%s/%s/%s/%s", v(Cruise.CRUISE_PIPELINE_NAME), v(Cruise.CRUISE_PIPELINE_LABEL), v(Cruise.CRUISE_STAGE_NAME), v(Cruise.CRUISE_STAGE_COUNTER), v(Cruise.CRUISE_JOB_NAME));
+        FileUtil fileUtil = new FileUtil(environment);
+        testTimesRepository = new TlbEntryRepository(fileUtil.getUniqueFile("test_times"));
+        subsetSizeRepository = new TlbEntryRepository(fileUtil.getUniqueFile("subset_size"));
+        failedTestsRepository = new TlbEntryRepository(fileUtil.getUniqueFile("failed_tests"));
+        stageLocator = String.format("%s/%s/%s/%s", v(Cruise.CRUISE_PIPELINE_NAME), v(Cruise.CRUISE_PIPELINE_COUNTER), v(Cruise.CRUISE_STAGE_NAME), v(Cruise.CRUISE_STAGE_COUNTER));
     }
 
     private static HttpClient createHttpClient(SystemEnvironment environment) {
@@ -79,18 +90,6 @@ public class TalkToGoServer implements TalkToService {
 
     private static HttpAction createHttpAction(SystemEnvironment environment) {
         return new DefaultHttpAction(createHttpClient(environment), createUri(environment));
-    }
-
-    public TalkToGoServer(SystemEnvironment environment, HttpAction httpAction) {
-        this.environment = environment;
-        this.httpAction = httpAction;
-        subsetSize = null;
-        jobLocator = String.format("%s/%s/%s/%s/%s", v(Cruise.CRUISE_PIPELINE_NAME), v(Cruise.CRUISE_PIPELINE_LABEL), v(Cruise.CRUISE_STAGE_NAME), v(Cruise.CRUISE_STAGE_COUNTER), v(Cruise.CRUISE_JOB_NAME));
-        FileUtil fileUtil = new FileUtil(environment);
-        testTimesRepository = new TlbEntryRepository(fileUtil.getUniqueFile("test_times"));
-        subsetSizeRepository = new TlbEntryRepository(fileUtil.getUniqueFile("subset_size"));
-        failedTestsRepository = new TlbEntryRepository(fileUtil.getUniqueFile("failed_tests"));
-        stageLocator = String.format("%s/%s/%s/%s", v(Cruise.CRUISE_PIPELINE_NAME), v(Cruise.CRUISE_PIPELINE_COUNTER), v(Cruise.CRUISE_STAGE_NAME), v(Cruise.CRUISE_STAGE_COUNTER));
     }
 
     public List<String> getJobs() {
@@ -125,7 +124,7 @@ public class TalkToGoServer implements TalkToService {
         return environment.val(key);
     }
 
-    public void testClassTime(String className, long time) {
+    public void processedTestClassTime(String className, long time) {
         logger.info(String.format("recording run time for suite %s", className));
         testTimesRepository.appendLine(new SuiteTimeEntry(className, time).dump());
         List<String> testTimes = testTimesRepository.load();
@@ -161,7 +160,7 @@ public class TalkToGoServer implements TalkToService {
         return subsetSize;
     }
 
-    public List<SuiteTimeEntry> getLastRunTestTimes() {
+    public List<SuiteTimeEntry> fetchLastRunTestTimes() {
         return getLastRunTestTimes(pearJobs());
     }
 
@@ -231,7 +230,7 @@ public class TalkToGoServer implements TalkToService {
         httpAction.put(artifactFileUrl(TlbConstants.TEST_SUBSET_SIZE_FILE), line);
     }
 
-    public void clearCachingFiles() {
+    public void clearOtherCachingFiles() {
         for (TlbEntryRepository repository : Arrays.asList(subsetSizeRepository, testTimesRepository, failedTestsRepository)) {
             try {
                 repository.cleanup();

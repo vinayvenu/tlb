@@ -5,6 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import tlb.TestUtil;
+import tlb.TlbConstants;
 import tlb.domain.SuiteResultEntry;
 import tlb.domain.SuiteTimeEntry;
 import tlb.service.http.HttpAction;
@@ -231,6 +232,52 @@ public class TalkToGoServerTest {
         verify(action).put(url, data);
     }
 
+    @Test
+    public void shouldUpdateCruiseArtifactWithSmoothenedTestTimes() throws Exception {
+        Map<String, String> envMap = initEnvMap("http://test.host:8153/go");
+        envMap.put(Cruise.CRUISE_JOB_NAME, "firefox-2");
+        envMap.put(TlbConstants.Server.SMOOTHING_FACTOR, "0.5");
+        SystemEnvironment env = new SystemEnvironment(envMap);
+        HttpAction action = mock(HttpAction.class);
+
+        when(action.get("http://test.host:8153/go/pipelines/pipeline-foo/26/stage-foo-bar/1.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail_with_jobs_in_random_order.xml"));
+        stubJobDetails(action);
+
+        cruise = new TalkToGoServer(env, action);
+
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(fileContents("resources/stages_p1.xml"));
+
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(fileContents("resources/stages_p2.xml"));
+        when(action.get("http://test.host:8153/go/api/stages/3.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
+                                
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2.properties"));
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-3/tlb/test_time.properties")).thenReturn("");
+
+        FileUtil fileUtil = new FileUtil(env);
+
+        String data = "com.thoughtworks.cruise.one.One: 55\n" +
+                "com.thoughtworks.cruise.two.Two: 30\n" +
+                "com.thoughtworks.cruise.three.Three: 20\n";
+        String url = "http://test.host:8153/go/files/pipeline-foo/pipeline-foo-26/stage-foo-bar/1/firefox-2/" + TalkToGoServer.TEST_TIME_FILE;
+
+        TalkToGoServer cruise = new TalkToGoServer(env, action);
+        cruise.clearCachingFiles();
+        cruise.subsetSizeRepository.appendLine("5\n10\n3\n");
+        cruise.testClassTime("com.thoughtworks.cruise.one.One", 100);
+        assertCacheState(env, 1, "com.thoughtworks.cruise.one.One: 55", cruise.testTimesRepository);
+        cruise.testClassTime("com.thoughtworks.cruise.two.Two", 40);
+        assertCacheState(env, 2, "com.thoughtworks.cruise.two.Two: 30", cruise.testTimesRepository);
+
+        when(action.put(url, data)).thenReturn("File tlb/test_time.properties was appended successfully");
+
+
+        cruise.testClassTime("com.thoughtworks.cruise.three.Three", 10);
+        assertThat(fileUtil.getUniqueFile(cruise.jobLocator).exists(), is(false));
+
+        verify(action).put(url, data);
+    }
+
     private void assertCacheState(SystemEnvironment env, int lineCount, String lastLine, TlbEntryRepository repository) throws IOException {
         List<String> cache = repository.load();
         assertThat(cache.size(), is(lineCount));
@@ -262,13 +309,13 @@ public class TalkToGoServerTest {
     @Test
     public void shouldFindFailedTestsFromTheLastRunStage() throws Exception{
         HttpAction action = mock(HttpAction.class);
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(TestUtil.fileContents("resources/stages_p1.xml"));
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
-        when(action.get("http://localhost:8153/go/api/stages/3.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(TestUtil.fileContents("resources/stages_p1.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
+        when(action.get("http://test.host:8153/go/api/stages/3.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
         stubJobDetails(action);
-        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_1"));
-        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_2"));
-        TalkToGoServer service = new TalkToGoServer(initEnvironment("http://localhost:8153/go"), action);
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_1"));
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_2"));
+        TalkToGoServer service = new TalkToGoServer(initEnvironment("http://test.host:8153/go"), action);
         List<SuiteResultEntry> failedTestEntries = service.getLastRunFailedTests(Arrays.asList("firefox-1", "firefox-2"));
         List<String> failedTests = failedTestNames(failedTestEntries);
         Collections.sort(failedTests);
@@ -287,13 +334,13 @@ public class TalkToGoServerTest {
     @Test
     public void shouldFindTestTimesFromLastRunStage() throws Exception{
         HttpAction action = mock(HttpAction.class);
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(fileContents("resources/stages_p1.xml"));
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(fileContents("resources/stages_p2.xml"));
-        when(action.get("http://localhost:8153/go/api/stages/3.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(fileContents("resources/stages_p1.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(fileContents("resources/stages_p2.xml"));
+        when(action.get("http://test.host:8153/go/api/stages/3.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
         stubJobDetails(action);
-        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
-        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2.properties"));
-        TalkToGoServer service = new TalkToGoServer(initEnvironment("http://localhost:8153/go"), action);
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2.properties"));
+        TalkToGoServer service = new TalkToGoServer(initEnvironment("http://test.host:8153/go"), action);
         List<SuiteTimeEntry> runTimes = service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
         List<SuiteTimeEntry> expected = new ArrayList<SuiteTimeEntry>();
         expected.add(new SuiteTimeEntry("com.thoughtworks.cruise.one.One", 10l));
@@ -308,15 +355,15 @@ public class TalkToGoServerTest {
     public void shouldFindTestTimesFromLastRunStageWhenDeepDownFeedLinks() throws Exception{
         HttpAction action = mock(HttpAction.class);
 
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(TestUtil.fileContents("resources/stages_p1.xml"));
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=19")).thenReturn(TestUtil.fileContents("resources/stages_p3.xml"));
-        when(action.get("http://localhost:8153/go/api/stages/2.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(TestUtil.fileContents("resources/stages_p1.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=19")).thenReturn(TestUtil.fileContents("resources/stages_p3.xml"));
+        when(action.get("http://test.host:8153/go/api/stages/2.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
 
         stubJobDetails(action);
-        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
-        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2_with_new_lines.properties"));
-        Map<String, String> envMap = initEnvMap("http://localhost:8153/go");
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2_with_new_lines.properties"));
+        Map<String, String> envMap = initEnvMap("http://test.host:8153/go");
         envMap.put(Cruise.CRUISE_PIPELINE_NAME, "pipeline-foo");
         envMap.put(Cruise.CRUISE_STAGE_NAME, "stage-foo-quux");
         TalkToGoServer service = new TalkToGoServer(new SystemEnvironment(envMap), action);
@@ -333,13 +380,13 @@ public class TalkToGoServerTest {
     @Test
     public void failWhenCantFindTestTimesFromLastRunStage() throws Exception{
         HttpAction action = mock(HttpAction.class);
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(fileContents("resources/stages_p3.xml"));
-        when(action.get("http://localhost:8153/go/api/pipelines/pipeline-foo/stages.xml?before=17")).thenReturn(fileContents("resources/stages_p4.xml"));
-        when(action.get("http://localhost:8153/go/api/stages/3.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(fileContents("resources/stages_p3.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=17")).thenReturn(fileContents("resources/stages_p4.xml"));
+        when(action.get("http://test.host:8153/go/api/stages/3.xml")).thenReturn(fileContents("resources/stage_detail.xml"));
         stubJobDetails(action);
-        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
-        when(action.get("http://localhost:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2.properties"));
-        TalkToGoServer service = new TalkToGoServer(initEnvironment("http://localhost:8153/go"), action);
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_1.properties"));
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/test_time.properties")).thenReturn(fileContents("resources/test_time_2.properties"));
+        TalkToGoServer service = new TalkToGoServer(initEnvironment("http://test.host:8153/go"), action);
         try {
             service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
             fail("should have failed as a historical stage run does not exist");

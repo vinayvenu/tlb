@@ -30,7 +30,7 @@ public class TimeBasedTestSplitterCriteriaTest {
 
     @Before
     public void setUp() throws Exception {
-        talkToService = mock(TalkToGoServer.class);
+        talkToService = mock(TalkToService.class);
         logFixture = new TestUtil.LogFixture();
     }
 

@@ -6,6 +6,7 @@ import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import org.apache.commons.io.FileUtils;
+import tlb.service.TalkToService;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +16,8 @@ public class PublishScenarioExecutionTimeTest {
 
     @Test
     public void shouldPublishScenarioExecutionTimeToCruise() throws Exception {
-        TalkToGoServer cruise = mock(TalkToGoServer.class);
-        PublishScenarioExecutionTime publishTime = new PublishScenarioExecutionTime(cruise);
+        TalkToService service = mock(TalkToService.class);
+        PublishScenarioExecutionTime publishTime = new PublishScenarioExecutionTime(service);
         String reportsDir = "reports";
         publishTime.setReportsDir(reportsDir);
 
@@ -26,8 +27,8 @@ public class PublishScenarioExecutionTimeTest {
 
         publishTime.execute();
 
-        verify(cruise).testClassTime("Agent UI Auto Refresh.scn", 85822);
-        verify(cruise).testClassTime("AgentsApi.scn", 77871);
+        verify(service).testClassTime("Agent UI Auto Refresh.scn", 85822);
+        verify(service).testClassTime("AgentsApi.scn", 77871);
     }
 
     private void populateReports(File reportsFolder) throws Exception {
