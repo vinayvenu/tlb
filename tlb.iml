@@ -6,50 +6,29 @@
       <sourceFolder url="file://$MODULE_DIR$/integration-test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/test/resources" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library>
+      <library name="prod">
         <CLASSES>
-          <root url="file://$MODULE_DIR$/lib" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/local/apache-ant-1.7.1-src.zip!/apache-ant-1.7.1/src/tests/junit" />
-          <root url="jar://$MODULE_DIR$/local/apache-ant-1.7.1-src.zip!/apache-ant-1.7.1/src/tests/antunit/core/uuencode/src" />
-          <root url="jar://$MODULE_DIR$/local/apache-ant-1.7.1-src.zip!/apache-ant-1.7.1/src" />
-          <root url="jar://$MODULE_DIR$/local/apache-ant-1.7.1-src.zip!/apache-ant-1.7.1/src/tests/antunit/core/location/src" />
-          <root url="jar://$MODULE_DIR$/local/apache-ant-1.7.1-src.zip!/apache-ant-1.7.1/src/main" />
-          <root url="jar://$MODULE_DIR$/local/dom4j-1.6.1-sources.jar!/" />
-          <root url="jar://$MODULE_DIR$/local/jaxen-1.1.1-src.zip!/jaxen-1.1.1/src/java/main" />
-          <root url="jar://$MODULE_DIR$/local/commons-httpclient-3.1-src.zip!/commons-httpclient-3.1/src/contrib" />
-          <root url="jar://$MODULE_DIR$/local/commons-httpclient-3.1-src.zip!/commons-httpclient-3.1/src/test" />
-          <root url="jar://$MODULE_DIR$/local/commons-httpclient-3.1-src.zip!/commons-httpclient-3.1/src/java" />
-          <root url="file://$MODULE_DIR$/local/com.noelios.restlet" />
-          <root url="file://$MODULE_DIR$/local/org.restlet" />
-        </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/test/lib" />
+          <root url="file://$MODULE_DIR$/lib/prod" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/test/lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/lib/prod" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library>
+      <library name="test">
         <CLASSES>
-          <root url="file://$MODULE_DIR$/test" />
+          <root url="file://$MODULE_DIR$/lib/test" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/lib/test" recursive="false" />
       </library>
     </orderEntry>
   </component>

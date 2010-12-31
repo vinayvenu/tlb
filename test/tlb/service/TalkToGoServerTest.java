@@ -313,8 +313,8 @@ public class TalkToGoServerTest {
         when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(TestUtil.fileContents("resources/stages_p2.xml"));
         when(action.get("http://test.host:8153/go/api/stages/3.xml")).thenReturn(TestUtil.fileContents("resources/stage_detail.xml"));
         stubJobDetails(action);
-        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_1"));
-        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/failed_tests")).thenReturn(TestUtil.fileContents("resources/failed_tests_2"));
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-1/tlb/failed_tests")).thenReturn(TestUtil.fileContents("failed_tests_1.properties"));
+        when(action.get("http://test.host:8153/go/files/pipeline/1/stage/1/firefox-2/tlb/failed_tests")).thenReturn(TestUtil.fileContents("failed_tests_2.properties"));
         TalkToGoServer service = new TalkToGoServer(initEnvironment("http://test.host:8153/go"), action);
         List<SuiteResultEntry> failedTestEntries = service.getLastRunFailedTests(Arrays.asList("firefox-1", "firefox-2"));
         List<String> failedTests = failedTestNames(failedTestEntries);

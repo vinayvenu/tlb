@@ -1,10 +1,11 @@
-<project name="tlb" basedir="." default="all">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="tlb" basedir="." default="all">
     <property name="src.dir" location="src"/>
     <property name="test.dir" location="test"/>
     <property name="test-resources.dir" location="${test.dir}/resources"/>
     <property name="integration-test.dir" location="integration-test"/>
     <property name="lib.dir" location="lib"/>
-    <property name="test-lib.dir" location="test/lib"/>
+    <property name="prod-lib.dir" location="${lib.dir}/prod"/>
+    <property name="test-lib.dir" location="${lib.dir}/test"/>
     <property name="build_lib.dir" location="build_lib"/>
     <property name="target.dir" location="target"/>
     <property name="classes.dir" location="${target.dir}/classes"/>
@@ -15,7 +16,7 @@
     <property name="test-target-resources.dir" location="${test-classes.dir}/resources"/>
 
     <path id="dependencies">
-        <fileset dir="${lib.dir}" includes="*.jar"/>
+        <fileset dir="${prod-lib.dir}" includes="*.jar"/>
     </path>
 
     <path id="src.classpath">
@@ -36,7 +37,7 @@
     </path>
 
     <path id="dog.food.classpath">
-        <fileset dir="${lib.dir}" includes="*.jar"/>
+        <fileset dir="${prod-lib.dir}" includes="*.jar"/>
         <fileset dir="${target.dir}" includes="tlb*.jar"/>
     </path>
 
@@ -56,7 +57,38 @@
         </classpath>
     </taskdef>
 
-    <target name="init">
+     <property name="ivy.install.version" value="2.2.0" />
+    <condition property="ivy.home" value="${env.IVY_HOME}">
+      <isset property="env.IVY_HOME" />
+    </condition>
+    <property name="ivy.home" value="${user.home}/.ant" />
+    <property name="ivy.jar.dir" value="${ivy.home}/lib" />
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
+    <target name="download-ivy" unless="offline">
+        <mkdir dir="${ivy.jar.dir}"/>
+        <!-- download Ivy from web site so that it can be used even without any special installation -->
+        <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+             dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="init-ivy" depends="download-ivy">
+      <!-- try to load ivy here from ivy home, in case the user has not already dropped
+              it into ant's lib dir (note that the latter copy will always take precedence).
+              We will not fail as long as local lib dir exists (it may be empty) and
+              ivy is in at least one of ant's lib dir or the local lib dir. -->
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>
+
+    <target name="resolve" depends="init-ivy">
+        <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact].[ext]" sync="true"/>
+    </target>
+
+    <target name="init" depends="resolve">
         <mkdir dir="${classes.dir}"/>
         <mkdir dir="${test-classes.dir}"/>
         <mkdir dir="${integration-test-classes.dir}"/>
@@ -67,7 +99,7 @@
         <delete dir="${target.dir}" includeemptydirs="true"/>
     </target>
 
-    <target name="compile" depends="init">
+    <target name="compile" depends="init, resolve">
         <javac destdir="${classes.dir}" target="1.5" source="1.5" debug="true" includeantruntime="false">
             <classpath refid="src.classpath"/>
             <src path="${src.dir}"/>
@@ -122,7 +154,7 @@
         <onejar destfile="${target.dir}/${tlb.all.jar.name}">
             <main jar="${tlb_jar}"/>
             <lib>
-                <fileset dir="${lib.dir}"/>
+                <fileset dir="${prod-lib.dir}"/>
             </lib>
         </onejar>
     </target>
@@ -153,7 +185,7 @@
             <fileset dir="${target.dir}" includes="${tlb.jar.name}" />
         </copy>
         <copy todir="${archive_dir}/lib">
-            <fileset dir="${lib.dir}" includes="*.jar" />
+            <fileset dir="${prod-lib.dir}" includes="*.jar" />
         </copy>
         <tar basedir="${dest_dir}" destfile="${tar}"/>
         <bzip2 src="${tar}" destfile="${target.dir}/${tlb.basename}.tar.bz2"/>
