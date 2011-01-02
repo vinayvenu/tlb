@@ -1,8 +1,9 @@
 <ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
     <info organisation="test-load-balancer" module="tlb"/>
-    <configurations defaultconf="prod" defaultconfmapping="prod->default;test->default">
-        <conf name="prod" visibility="public"/>
-        <conf name="test" visibility="public"/>
+    <configurations defaultconf="prod" defaultconfmapping="prod->default;test->default;build->default">
+        <conf name="prod"/>
+        <conf name="test"/>
+        <conf name="build"/>
     </configurations>
     <dependencies>
         <dependency org="org.apache.ant" name="ant" rev="1.7.1"/>
@@ -16,7 +17,12 @@
         <dependency org="org.restlet" name="org.restlet" rev="1.1.10"/>
         <dependency org="com.noelios.restlet" name="com.noelios.restlet" rev="1.1.10"/>
         <dependency org="com.noelios.restlet" name="com.noelios.restlet.ext.servlet" rev="1.1.10"/>
+
         <dependency org="org.mockito" name="mockito-all" rev="1.8.2" conf="test"/>
         <dependency org="junit.ext" name="junit-ext" rev="1.0-junit-4.5-RC-3" conf="test"/>
+
+        <dependency org="emma" name="emma" rev="2.0.5312" conf="build"/>
+        <dependency org="emma" name="emma_ant" rev="2.0.5312" conf="build"/>
+        <dependency org="org.onejar" name="one-jar-ant-task" rev="0.96" conf="build"/>
     </dependencies>
 </ivy-module>

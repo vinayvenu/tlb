@@ -6,7 +6,7 @@
     <property name="lib.dir" location="lib"/>
     <property name="prod-lib.dir" location="${lib.dir}/prod"/>
     <property name="test-lib.dir" location="${lib.dir}/test"/>
-    <property name="build_lib.dir" location="build_lib"/>
+    <property name="build_lib.dir" location="${lib.dir}/build"/>
     <property name="target.dir" location="target"/>
     <property name="classes.dir" location="${target.dir}/classes"/>
     <property name="emma.dir" location="${target.dir}/emma"/>
@@ -42,22 +42,11 @@
     </path>
 
     <path id="emma.classpath">
-        <pathelement location="${build_lib.dir}/emma-2.0.5312.jar"/>
-        <pathelement location="${build_lib.dir}/emma_ant-2.0.5312.jar"/>
+        <pathelement location="${build_lib.dir}/emma.jar"/>
+        <pathelement location="${build_lib.dir}/emma_ant.jar"/>
     </path>
 
-    <taskdef resource="emma_ant.properties" classpathref="emma.classpath"/>
-
-    <property name="one-jar.dist.dir" value="./dist"/>
-    <property name="one-jar.version" value="0.96"/>
-
-    <taskdef name="onejar" classname="com.simontuffs.onejar.ant.OneJarTask">
-        <classpath>
-            <pathelement location="${build_lib.dir}/one-jar-ant-task-0.96.jar"/>
-        </classpath>
-    </taskdef>
-
-     <property name="ivy.install.version" value="2.2.0" />
+    <property name="ivy.install.version" value="2.2.0" />
     <condition property="ivy.home" value="${env.IVY_HOME}">
       <isset property="env.IVY_HOME" />
     </condition>
@@ -91,6 +80,16 @@
         <mkdir dir="${test-classes.dir}"/>
         <mkdir dir="${integration-test-classes.dir}"/>
         <mkdir dir="${reports.dir}"/>
+        <taskdef resource="emma_ant.properties" classpathref="emma.classpath"/>
+
+        <property name="one-jar.dist.dir" value="./dist"/>
+        <property name="one-jar.version" value="0.96"/>
+
+        <taskdef name="onejar" classname="com.simontuffs.onejar.ant.OneJarTask">
+            <classpath>
+                <pathelement location="${build_lib.dir}/one-jar-ant-task.jar"/>
+            </classpath>
+        </taskdef>
     </target>
 
     <target name="clean">
