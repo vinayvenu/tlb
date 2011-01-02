@@ -7,10 +7,10 @@
     <include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml"/>
     <include url="${ivy.default.settings.dir}/ivysettings-default-chain.xml"/>
     <resolvers>
-        <chain name="junit-ext">
-            <url name="junit-ext">
-                <artifact pattern="http://junit-ext.googlecode.com/files/[artifact]-[revision].[ext]"/>
-            </url>
+        <chain name="local">
+            <filesystem name="local">
+                <artifact pattern="${basedir}/local_repo/[organisation]/[module]/[artifact]-[revision].[ext]"/>
+            </filesystem>
         </chain>
         <chain name="restlet">
             <url name="restlet" m2compatible="true">
@@ -18,9 +18,9 @@
             </url>
         </chain>
         <chain name="tlbChain">
+            <resolver ref="local"/>
             <resolver ref="default"/>
             <resolver ref="restlet"/>
-            <resolver ref="junit-ext"/>
         </chain>
     </resolvers>
 </ivysettings>
