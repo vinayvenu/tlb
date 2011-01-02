@@ -26,8 +26,10 @@ def tlb_layout
   layout
 end
 
-LIB_JARS = Dir.glob('lib/*.jar')
-TEST_JARS = Dir.glob('test/lib/*.jar')
+LIB_JARS = Dir.glob('lib/prod/*.jar')
+TEST_JARS = Dir.glob('lib/test/*.jar')
+
+`ant init`
 
 define "tlb", :layout => tlb_layout  do |project|
   compile.options[:other] = %w[-encoding UTF-8]
@@ -41,8 +43,6 @@ define "tlb", :layout => tlb_layout  do |project|
 
   resources.from(_('src')).exclude('*.java')
   compile.with LIB_JARS
-
-  # emma.include("com.thoughtworks.*")
 
   test.resources.from(_('test')).exclude('*.java')
 
