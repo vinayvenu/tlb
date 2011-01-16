@@ -106,8 +106,7 @@ public class EntryRepoFactory implements Runnable {
 
                 File diskDump = dumpFile(identifier);
                 if (diskDump.exists()) {
-                    ObjectInputStream inStream = new ObjectInputStream(new FileInputStream(diskDump));
-                    repo.load(inStream);
+                    repo.load(new FileReader(diskDump));
                 }
             }
             return repo;
@@ -137,7 +136,7 @@ public class EntryRepoFactory implements Runnable {
             try {
                 //don't care about a couple entries not being persisted(at teardown), as client is capable of balancing on averages(treat like new suites)
                 synchronized (repoId(identifier)) {
-                    repos.get(identifier).diskDump(new ObjectOutputStream(new FileOutputStream(dumpFile(identifier))));
+                    repos.get(identifier).diskDump(new FileWriter(dumpFile(identifier)));
                 }
             } catch (IOException e) {
                 logger.log(Level.WARNING, String.format("disk dump of %s failed, tlb server may not be able to perform data dependent on next reboot.", identifier), e);

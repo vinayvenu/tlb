@@ -5,4 +5,6 @@ package tlb.domain;
  */
 public interface SuiteLevelEntry extends Entry {
     public String getName();
+
+    String dump();
 }

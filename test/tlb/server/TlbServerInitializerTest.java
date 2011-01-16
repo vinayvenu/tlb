@@ -13,10 +13,7 @@ import tlb.server.repo.EntryRepoFactory;
 import tlb.server.repo.SubsetSizeRepo;
 import tlb.utils.SystemEnvironment;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
@@ -93,11 +90,19 @@ public class TlbServerInitializerTest {
         EntryRepoFactory factory = initializer.repoFactory();
         File dir = TestUtil.mkdirInPwd("tlb_store");
         File file = new File(dir, EntryRepoFactory.name("foo", LATEST_VERSION, EntryRepoFactory.SUBSET_SIZE));
-        ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(file));
-        outStream.writeObject(new ArrayList<SubsetSizeEntry>(Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
-        outStream.close();
+        List<SubsetSizeEntry> entries = writeEntriedTo(file);
         SubsetSizeRepo repo = factory.createSubsetRepo("foo", LATEST_VERSION);
-        assertThat((List<SubsetSizeEntry>) repo.list(), is(Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
+        assertThat((List<SubsetSizeEntry>) repo.list(), is(entries));
+    }
+
+    private List<SubsetSizeEntry> writeEntriedTo(File file) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        List<SubsetSizeEntry> entries = Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3));
+        for (SubsetSizeEntry entry : entries) {
+            writer.append(entry.dump());
+        }
+        writer.close();
+        return entries;
     }
 
     @Test
@@ -107,9 +112,7 @@ public class TlbServerInitializerTest {
         initializer = new TlbServerInitializer(new SystemEnvironment(systemEnv));
         EntryRepoFactory factory = initializer.repoFactory();
         File file = new File(tmpDir, EntryRepoFactory.name("quux", LATEST_VERSION, EntryRepoFactory.SUBSET_SIZE));
-        ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(file));
-        outStream.writeObject(new ArrayList<SubsetSizeEntry>(Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
-        outStream.close();
+        writeEntriedTo(file);
         SubsetSizeRepo repo = factory.createSubsetRepo("quux", LATEST_VERSION);
         assertThat((List<SubsetSizeEntry>) repo.list(), is(Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
     }

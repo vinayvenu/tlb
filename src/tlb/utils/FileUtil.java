@@ -4,6 +4,7 @@ import static tlb.TlbConstants.TLB_TMP_DIR;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -69,5 +70,19 @@ public class FileUtil {
     public static String stripExtension(String fileName) {
         int index = fileName.lastIndexOf(".") == -1 ? fileName.length() : fileName.lastIndexOf(".");
         return fileName.substring(0, index);
+    }
+
+    public static String readIntoString(BufferedReader bufferedReader) {
+        StringBuilder builder = new StringBuilder();
+        String line;
+        try {
+            while ((line = bufferedReader.readLine()) != null) {
+                builder.append(line);
+                builder.append(System.getProperty("line.separator", "\n"));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return builder.toString();
     }
 }

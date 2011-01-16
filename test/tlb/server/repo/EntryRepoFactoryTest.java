@@ -1,5 +1,6 @@
 package tlb.server.repo;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import tlb.TestUtil;
@@ -10,10 +11,7 @@ import tlb.domain.SuiteTimeEntry;
 import tlb.domain.TimeProvider;
 import tlb.utils.SystemEnvironment;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.*;
 
 import static org.hamcrest.core.Is.is;
@@ -86,9 +84,9 @@ public class EntryRepoFactoryTest {
         Thread exitHook = factory.exitHook();
         exitHook.start();
         exitHook.join();
-        verify(repoFoo).diskDump(any(ObjectOutputStream.class));
-        verify(repoBar).diskDump(any(ObjectOutputStream.class));
-        verify(repoBaz).diskDump(any(ObjectOutputStream.class));
+        verify(repoFoo).diskDump(any(Writer.class));
+        verify(repoBar).diskDump(any(Writer.class));
+        verify(repoBaz).diskDump(any(Writer.class));
     }
     
     @Test
@@ -123,13 +121,13 @@ public class EntryRepoFactoryTest {
         EntryRepo repoBar = mock(EntryRepo.class);
         factory.getRepos().put("foo|subset_size", repoFoo);
         factory.getRepos().put("bar|subset_size", repoBar);
-        doThrow(new IOException("test exception")).when(repoFoo).diskDump(any(ObjectOutputStream.class));
+        doThrow(new IOException("test exception")).when(repoFoo).diskDump(any(Writer.class));
         logFixture.startListening();
         factory.run();
         logFixture.stopListening();
         logFixture.assertHeard("disk dump of foo|subset_size failed");
-        verify(repoFoo).diskDump(any(ObjectOutputStream.class));
-        verify(repoBar).diskDump(any(ObjectOutputStream.class));
+        verify(repoFoo).diskDump(any(Writer.class));
+        verify(repoBar).diskDump(any(Writer.class));
     }
 
     @Test
@@ -152,9 +150,7 @@ public class EntryRepoFactoryTest {
         final File workingDirStorage = new File(TlbConstants.Server.TLB_STORE_DIR);
         workingDirStorage.mkdirs();
         File file = new File(workingDirStorage, EntryRepoFactory.name("foo", LATEST_VERSION, EntryRepoFactory.SUBSET_SIZE));
-        ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(file));
-        outStream.writeObject(new ArrayList<SubsetSizeEntry>(Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
-        outStream.close();
+        FileUtils.writeStringToFile(file, "1\n2\n3\n");
         EntryRepoFactory factory = new EntryRepoFactory(new SystemEnvironment(new HashMap<String, String>()));
         SubsetSizeRepo repo = factory.createSubsetRepo("foo", LATEST_VERSION);
         assertThat(repo.list(), is((Collection<SubsetSizeEntry>) Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
@@ -164,9 +160,7 @@ public class EntryRepoFactoryTest {
     public void shouldLoadDiskDumpFromStorageRoot() throws IOException, ClassNotFoundException {
         baseDir.mkdirs();
         File file = new File(baseDir, EntryRepoFactory.name("foo", LATEST_VERSION, EntryRepoFactory.SUBSET_SIZE));
-        ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(file));
-        outStream.writeObject(new ArrayList<SubsetSizeEntry>(Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
-        outStream.close();
+        FileUtils.writeStringToFile(file, "1\n2\n3\n");
         SubsetSizeRepo repo = factory.createSubsetRepo("foo", LATEST_VERSION);
         assertThat(repo.list(), is((Collection<SubsetSizeEntry>) Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
     }

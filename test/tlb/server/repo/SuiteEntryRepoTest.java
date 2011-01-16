@@ -1,18 +1,18 @@
 package tlb.server.repo;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import tlb.TestUtil;
 import tlb.TlbConstants;
+import tlb.domain.SubsetSizeEntry;
 import tlb.domain.SuiteLevelEntry;
 import tlb.domain.TimeProvider;
+import tlb.utils.FileUtil;
 import tlb.utils.SystemEnvironment;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static junit.framework.Assert.fail;
@@ -36,7 +36,14 @@ public class SuiteEntryRepoTest {
         final SuiteEntryRepo entryRepo = (SuiteEntryRepo) factory.findOrCreate("name_space", "version", "type", new EntryRepoFactory.Creator<SuiteEntryRepo>() {
             public SuiteEntryRepo create() {
                 return new SuiteEntryRepo<TestCaseRepo.TestCaseEntry>() {
-                    public Collection<TestCaseRepo.TestCaseEntry> list(String version) throws IOException, ClassNotFoundException { return null; }
+                    public Collection<TestCaseRepo.TestCaseEntry> list(String version) throws IOException, ClassNotFoundException {
+                        return null;
+                    }
+
+                    @Override
+                    protected TestCaseRepo.TestCaseEntry parseSingleEntry(String string) {
+                        return TestCaseRepo.TestCaseEntry.parseSingleEntry(string);
+                    }
                 };
             }
         });
@@ -80,26 +87,19 @@ public class SuiteEntryRepoTest {
     public void shouldDumpDataOnGivenOutputStream() throws IOException, ClassNotFoundException {
         testCaseRepo.update(parseSingleEntry("shouldBar#Bar"));
         testCaseRepo.update(parseSingleEntry("shouldFoo#Foo"));
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        testCaseRepo.diskDump(new ObjectOutputStream(outStream));
-        ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(outStream.toByteArray()));
-        ConcurrentHashMap<String, SuiteLevelEntry> subsetTimeEntries = (ConcurrentHashMap<String, SuiteLevelEntry>) inputStream.readObject();
-        ConcurrentHashMap<String, SuiteLevelEntry> expected = new ConcurrentHashMap<String, SuiteLevelEntry>();
-        expected.put("shouldBar", new TestCaseRepo.TestCaseEntry("shouldBar", "Bar"));
-        expected.put("shouldFoo", new TestCaseRepo.TestCaseEntry("shouldFoo", "Foo"));
-        assertThat(subsetTimeEntries, is(expected));
+        StringWriter writer = new StringWriter();
+        testCaseRepo.diskDump(writer);
+        assertThat(writer.toString(), is("shouldBar=shouldBar#Bar\nshouldFoo=shouldFoo#Foo\n"));
     }
 
     @Test
-    public void shouldLoadFromInputStreamGiven() throws IOException, ClassNotFoundException {
-        ConcurrentHashMap<String, TestCaseRepo.TestCaseEntry> toBeLoaded = new ConcurrentHashMap<String, TestCaseRepo.TestCaseEntry>();
-        toBeLoaded.put("shouldBar", new TestCaseRepo.TestCaseEntry("shouldBar", "Bar"));
-        toBeLoaded.put("shouldFoo", new TestCaseRepo.TestCaseEntry("shouldFoo", "Foo"));
+    public void shouldLoadFromGivenReader() throws IOException, ClassNotFoundException {
+        File tempFile = File.createTempFile("temp-file", "something");
+        tempFile.deleteOnExit();
 
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        new ObjectOutputStream(outStream).writeObject(toBeLoaded);
-        ObjectInputStream inStream = new ObjectInputStream(new ByteArrayInputStream(outStream.toByteArray()));
-        testCaseRepo.load(inStream);
+        FileUtils.writeStringToFile(tempFile, "shouldBar=shouldBar#Bar\nshouldFoo=shouldFoo#Foo\n");
+
+        testCaseRepo.load(new FileReader(tempFile));
         assertThat(TestUtil.sortedList(testCaseRepo.list()), is(listOf(new TestCaseRepo.TestCaseEntry("shouldBar", "Bar"), new TestCaseRepo.TestCaseEntry("shouldFoo", "Foo"))));
     }
 
@@ -113,8 +113,8 @@ public class SuiteEntryRepoTest {
         assertThat((TestCaseRepo.TestCaseEntry) entryList.get(1), is(new TestCaseRepo.TestCaseEntry("shouldFoo", "Foo")));
 
     }
-    
-    private List<SuiteLevelEntry> listOf(SuiteLevelEntry ... entries) {
+
+    private List<SuiteLevelEntry> listOf(SuiteLevelEntry... entries) {
         ArrayList<SuiteLevelEntry> list = new ArrayList<SuiteLevelEntry>();
         for (SuiteLevelEntry entry : entries) {
             list.add(entry);
