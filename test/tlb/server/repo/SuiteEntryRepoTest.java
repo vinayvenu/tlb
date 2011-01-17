@@ -49,7 +49,7 @@ public class SuiteEntryRepoTest {
         });
         assertThat(entryRepo.factory, sameInstance(factory));
         assertThat(entryRepo.namespace, is("name_space"));
-        assertThat(entryRepo.identifier, is("name_space|version|type"));
+        assertThat(entryRepo.identifier, is("name__space_version_type"));
     }
 
     @Test

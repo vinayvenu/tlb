@@ -1,6 +1,5 @@
 package tlb.utils;
 
-import static tlb.TlbConstants.TLB_TMP_DIR;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 
@@ -78,7 +77,7 @@ public class FileUtil {
         try {
             while ((line = bufferedReader.readLine()) != null) {
                 builder.append(line);
-                builder.append(System.getProperty("line.separator", "\n"));
+                builder.append("\n");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

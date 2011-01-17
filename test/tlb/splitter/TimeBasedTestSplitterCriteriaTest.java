@@ -15,6 +15,7 @@ import tlb.utils.SystemEnvironment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.io.File;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -253,11 +254,11 @@ public class TimeBasedTestSplitterCriteriaTest {
 
     private List<SuiteTimeEntry> testTimes() {
         List<SuiteTimeEntry> entries = new ArrayList<SuiteTimeEntry>();
-        entries.add(new SuiteTimeEntry("com/foo/First.class", 2l));
-        entries.add(new SuiteTimeEntry("com/foo/Second.class", 5l));
-        entries.add(new SuiteTimeEntry("com/bar/Third.class", 1l));
-        entries.add(new SuiteTimeEntry("foo/baz/Fourth.class", 4l));
-        entries.add(new SuiteTimeEntry("foo/bar/Fourth.class", 3l));
+        entries.add(new SuiteTimeEntry(new File("com/foo/First.class").getPath(), 2l));
+        entries.add(new SuiteTimeEntry(new File("com/foo/Second.class").getPath(), 5l));
+        entries.add(new SuiteTimeEntry(new File("com/bar/Third.class").getPath(), 1l));
+        entries.add(new SuiteTimeEntry(new File("foo/baz/Fourth.class").getPath(), 4l));
+        entries.add(new SuiteTimeEntry(new File("foo/bar/Fourth.class").getPath(), 3l));
         return entries;
     }
 }

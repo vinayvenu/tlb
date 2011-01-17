@@ -69,7 +69,7 @@ public class FailedFirstOrdererTest {
         JunitFileResource quuxClass = junitFileResource(baseDir, "foo/baz/Quux.class");
         JunitFileResource failedFooClass = junitFileResource(baseDir, "baz/bang/Foo.class");
         JunitFileResource failedBangClass = junitFileResource(baseDir, "foo/bar/Bang.class");
-        List<SuiteResultEntry> failedTests = Arrays.asList(new SuiteResultEntry("baz/bang/Foo.class", true), new SuiteResultEntry("foo/bar/Bang.class", true));
+        List<SuiteResultEntry> failedTests = Arrays.asList(new SuiteResultEntry(convertToPlatformSpecificPath("baz/bang/Foo.class"), true), new SuiteResultEntry(convertToPlatformSpecificPath("foo/bar/Bang.class"), true));
         when(toCruise.getLastRunFailedTests()).thenReturn(failedTests);
         List<TlbFileResource> fileList = new ArrayList<TlbFileResource>(Arrays.asList(bazClass, failedFooClass, quuxClass, failedBangClass));
         final SuiteFileConvertor convertor = new SuiteFileConvertor();
@@ -103,8 +103,12 @@ public class FailedFirstOrdererTest {
     }
     
     private JunitFileResource junitFileResource(String baseDir, String classRelPath) {
-        JunitFileResource bazClass = new JunitFileResource(project, classRelPath);
+        JunitFileResource bazClass = new JunitFileResource(project, convertToPlatformSpecificPath(classRelPath));
         bazClass.setBaseDir(new File(baseDir));
         return bazClass;
+    }
+
+    private String convertToPlatformSpecificPath(String classRelPath) {
+        return new File(classRelPath).getPath();
     }
 }

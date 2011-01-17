@@ -27,7 +27,9 @@ public class FailedFirstOrderer extends TestOrderer implements TalksToService {
         if (failedTestFiles == null) {
             failedTestFiles = new ArrayList<String>();
             for (SuiteResultEntry failedSuiteEntry : toService.getLastRunFailedTests()) {
-                if (failedSuiteEntry.hasFailed()) failedTestFiles.add(failedSuiteEntry.getName());
+                if (failedSuiteEntry.hasFailed()) {
+                    failedTestFiles.add(failedSuiteEntry.getName());
+                }
             }
         }
         if (failedTestFiles.contains(o1.getName()))
