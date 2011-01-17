@@ -199,7 +199,7 @@ public class EntryRepoFactoryTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @Ignore
     public void shouldPurgeDiskDumpAndRepositoryOlderThanGivenTime() throws IOException, ClassNotFoundException, InterruptedException {
         final TimeProvider timeProvider = mock(TimeProvider.class);
         final EntryRepoFactory factory = new EntryRepoFactory(baseDir, timeProvider, 1);
