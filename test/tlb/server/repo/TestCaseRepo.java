@@ -13,7 +13,12 @@ public class TestCaseRepo extends VersioningEntryRepo<TestCaseRepo.TestCaseEntry
         super(timeProvider);
     }
 
-    static class TestCaseEntry implements SuiteLevelEntry {
+    @Override
+    protected TestCaseEntry parseSingleEntry(String string) {
+        return TestCaseEntry.parseSingleEntry(string);
+    }
+
+    public static class TestCaseEntry implements SuiteLevelEntry {
         private final String testName;
         private final String suiteName;
 
@@ -27,7 +32,7 @@ public class TestCaseRepo extends VersioningEntryRepo<TestCaseRepo.TestCaseEntry
         }
 
         public String dump() {
-            return testName + "#" + suiteName;
+            return testName + "#" + suiteName + "\n";
         }
 
         public static TestCaseEntry parseSingleEntry(String singleEntry) {

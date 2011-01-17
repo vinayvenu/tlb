@@ -56,20 +56,15 @@ public class SubsetSizeRepoTest {
     @Test
     public void shouldDumpDataOnGivenOutputStream() throws IOException, ClassNotFoundException {
         addToRepo();
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        subsetSizeRepo.diskDump(new ObjectOutputStream(outStream));
-        ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(outStream.toByteArray()));
-        List<SubsetSizeEntry> subsetSizes = (List<SubsetSizeEntry>) inputStream.readObject();
-        assertListContents(subsetSizes);
+        StringWriter writer = new StringWriter();
+        subsetSizeRepo.diskDump(writer);
+        subsetSizeRepo.load(new StringReader(writer.toString()));
+        assertListContents((List<SubsetSizeEntry>) subsetSizeRepo.list());
     }
 
     @Test
-    public void shouldLoadFromInputStreamGiven() throws IOException, ClassNotFoundException {
-        addToRepo();
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        new ObjectOutputStream(outStream).writeObject(new ArrayList<SubsetSizeEntry>(Arrays.asList(new SubsetSizeEntry(10), new SubsetSizeEntry(12), new SubsetSizeEntry(7))));
-        ObjectInputStream inStream = new ObjectInputStream(new ByteArrayInputStream(outStream.toByteArray()));
-        subsetSizeRepo.load(inStream);
+    public void shouldLoadFromGivenReader() throws IOException, ClassNotFoundException {
+        subsetSizeRepo.load(new StringReader("10\n12\n7\n"));
         assertListContents((List<SubsetSizeEntry>) subsetSizeRepo.list());
     }
     

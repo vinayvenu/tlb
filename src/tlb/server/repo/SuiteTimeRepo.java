@@ -18,4 +18,9 @@ public class SuiteTimeRepo extends VersioningEntryRepo<SuiteTimeEntry> {
     public SuiteTimeRepo getSubRepo(String versionIdentifier) throws IOException, ClassNotFoundException {
         return factory.createSuiteTimeRepo(namespace, versionIdentifier);
     }
+
+    @Override
+    protected SuiteTimeEntry parseSingleEntry(String string) {
+        return SuiteTimeEntry.parseSingleEntry(string);
+    }
 }

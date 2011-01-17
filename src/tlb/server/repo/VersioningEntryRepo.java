@@ -4,7 +4,7 @@ import tlb.domain.SuiteLevelEntry;
 import tlb.domain.TimeProvider;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -59,8 +59,8 @@ public abstract class VersioningEntryRepo<T extends SuiteLevelEntry> extends Sui
     }
 
     @Override
-    public final void load(ObjectInputStream inStream) throws IOException, ClassNotFoundException {
-        super.load(inStream);
+    public final void load(Reader reader) throws IOException, ClassNotFoundException {
+        super.load(reader);
         loadedData = true;
     }
 }

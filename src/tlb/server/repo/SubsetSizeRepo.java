@@ -1,10 +1,9 @@
 package tlb.server.repo;
 
 import tlb.domain.SubsetSizeEntry;
+import tlb.utils.FileUtil;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,12 +30,20 @@ public class SubsetSizeRepo implements EntryRepo<SubsetSizeEntry> {
         throw new UnsupportedOperationException("update not allowed on repository");
     }
 
-    public void diskDump(ObjectOutputStream outStream) throws IOException {
-        outStream.writeObject(entries);
+    public void diskDump(Writer writer) throws IOException {
+        for (SubsetSizeEntry entry : entries) {
+            writer.append(entry.dump());
+        }
+        writer.close();
     }
 
-    public void load(ObjectInputStream inStream) throws IOException, ClassNotFoundException {
-        entries = (ArrayList<SubsetSizeEntry>) inStream.readObject();
+    public void load(Reader reader) throws IOException, ClassNotFoundException {
+        entries = readFromFile(reader);
+    }
+
+    private List<SubsetSizeEntry> readFromFile(Reader reader) {
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        return SubsetSizeEntry.parse(FileUtil.readIntoString(bufferedReader));
     }
 
     public void add(SubsetSizeEntry entry) {

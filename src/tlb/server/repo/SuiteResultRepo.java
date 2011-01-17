@@ -13,4 +13,9 @@ public class SuiteResultRepo extends SuiteEntryRepo<SuiteResultEntry> {
     public Collection<SuiteResultEntry> list(String version) throws IOException, ClassNotFoundException {
         throw new UnsupportedOperationException("versioning not allowed");
     }
+
+    @Override
+    protected SuiteResultEntry parseSingleEntry(String string) {
+        return SuiteResultEntry.parseSingleEntry(string);
+    }
 }

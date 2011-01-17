@@ -1,11 +1,14 @@
 package tlb.server.repo;
 
 import tlb.domain.SuiteLevelEntry;
+import tlb.utils.FileUtil;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,11 +50,28 @@ public abstract class SuiteEntryRepo<T extends SuiteLevelEntry> implements Entry
         this.identifier = type;
     }
 
-    public final void diskDump(ObjectOutputStream outStream) throws IOException {
-        outStream.writeObject(suiteData);
+    public final void diskDump(Writer writer) throws IOException {
+        for (Map.Entry<String, T> entry : suiteData.entrySet()) {
+            String line = entry.getKey() + "=" + entry.getValue().dump();
+            writer.append(line);
+        }
+        writer.close();
     }
 
-    public void load(ObjectInputStream inStream) throws IOException, ClassNotFoundException {
-        suiteData = (Map<String,T>) inStream.readObject();
+    public void load(Reader reader) throws IOException, ClassNotFoundException {
+        suiteData = readFromFile(reader);
     }
+
+    private Map<String,T> readFromFile(Reader reader) {
+        String contents = FileUtil.readIntoString(new BufferedReader(reader));
+        String[] lines = contents.split("\n");
+        Map<String, T> keyToValue= new HashMap<String, T>();
+        for (String line : lines) {
+            String[] keyValue = line.split("=");
+            keyToValue.put(keyValue[0], parseSingleEntry(keyValue[1]));
+        }
+        return keyToValue;
+    }
+
+    protected abstract T parseSingleEntry(String string);
 }

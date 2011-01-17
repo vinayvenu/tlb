@@ -3,8 +3,9 @@ package tlb.server.repo;
 import tlb.domain.Entry;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.Collection;
 
 /**
@@ -17,9 +18,9 @@ public interface EntryRepo<T extends Entry> {
 
     void update(T entry);
 
-    void diskDump(ObjectOutputStream objectOutputStream) throws IOException;
+    void diskDump(Writer writer) throws IOException;
 
-    void load(ObjectInputStream inStream) throws IOException, ClassNotFoundException;
+    void load(Reader reader) throws IOException, ClassNotFoundException;
 
     void add(T entry);
 
