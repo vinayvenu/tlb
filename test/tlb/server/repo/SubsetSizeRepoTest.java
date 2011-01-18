@@ -3,10 +3,9 @@ package tlb.server.repo;
 import tlb.domain.SubsetSizeEntry;
 import org.junit.Before;
 import org.junit.Test;
+import tlb.utils.FileUtil;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.fail;
@@ -54,17 +53,17 @@ public class SubsetSizeRepoTest {
     }
 
     @Test
-    public void shouldDumpDataOnGivenOutputStream() throws IOException, ClassNotFoundException {
+    public void shouldDumpDataAsString() throws IOException, ClassNotFoundException {
         addToRepo();
-        StringWriter writer = new StringWriter();
-        subsetSizeRepo.diskDump(writer);
-        subsetSizeRepo.load(new StringReader(writer.toString()));
+        String dump = subsetSizeRepo.diskDump();
+        subsetSizeRepo.load(dump);
         assertListContents((List<SubsetSizeEntry>) subsetSizeRepo.list());
     }
 
     @Test
     public void shouldLoadFromGivenReader() throws IOException, ClassNotFoundException {
-        subsetSizeRepo.load(new StringReader("10\n12\n7\n"));
+        final StringReader reader = new StringReader("10\n12\n7\n");
+        subsetSizeRepo.load(FileUtil.readIntoString(new BufferedReader(reader)));
         assertListContents((List<SubsetSizeEntry>) subsetSizeRepo.list());
     }
     
@@ -76,5 +75,13 @@ public class SubsetSizeRepoTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("versioning not allowed"));
         }
+    }
+
+    @Test
+    public void shouldKnowHowToParseAnEntry() {
+        List<SubsetSizeEntry> subsetSizeEntry = subsetSizeRepo.parse("10\n19");
+        assertThat(subsetSizeEntry.get(0), is(new SubsetSizeEntry(10)));
+        assertThat(subsetSizeEntry.get(1), is(new SubsetSizeEntry(19)));
+        assertThat(subsetSizeEntry.size(), is(2));
     }
 }

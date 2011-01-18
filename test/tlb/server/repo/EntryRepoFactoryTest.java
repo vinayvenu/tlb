@@ -78,15 +78,18 @@ public class EntryRepoFactoryTest {
         EntryRepo repoFoo = mock(EntryRepo.class);
         EntryRepo repoBar = mock(EntryRepo.class);
         EntryRepo repoBaz = mock(EntryRepo.class);
+        when(repoFoo.diskDump()).thenReturn("foo-data");
+        when(repoBar.diskDump()).thenReturn("bar-data");
+        when(repoBaz.diskDump()).thenReturn("baz-data");
         factory.getRepos().put("foo", repoFoo);
         factory.getRepos().put("bar", repoBar);
         factory.getRepos().put("baz", repoBaz);
         Thread exitHook = factory.exitHook();
         exitHook.start();
         exitHook.join();
-        verify(repoFoo).diskDump(any(Writer.class));
-        verify(repoBar).diskDump(any(Writer.class));
-        verify(repoBaz).diskDump(any(Writer.class));
+        verify(repoFoo).diskDump();
+        verify(repoBar).diskDump();
+        verify(repoBaz).diskDump();
     }
     
     @Test
@@ -121,13 +124,14 @@ public class EntryRepoFactoryTest {
         EntryRepo repoBar = mock(EntryRepo.class);
         factory.getRepos().put("foo|subset_size", repoFoo);
         factory.getRepos().put("bar|subset_size", repoBar);
-        doThrow(new IOException("test exception")).when(repoFoo).diskDump(any(Writer.class));
+        when(repoFoo.diskDump()).thenThrow(new IOException("test exception"));
+        when(repoBar.diskDump()).thenReturn("bar-data");
         logFixture.startListening();
         factory.run();
         logFixture.stopListening();
         logFixture.assertHeard("disk dump of foo|subset_size failed");
-        verify(repoFoo).diskDump(any(Writer.class));
-        verify(repoBar).diskDump(any(Writer.class));
+        verify(repoFoo).diskDump();
+        verify(repoBar).diskDump();
     }
 
     @Test

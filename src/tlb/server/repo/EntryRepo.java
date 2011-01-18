@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @understands storage and retrieval of records 
@@ -18,9 +19,9 @@ public interface EntryRepo<T extends Entry> {
 
     void update(T entry);
 
-    void diskDump(Writer writer) throws IOException;
+    String diskDump() throws IOException;
 
-    void load(Reader reader) throws IOException, ClassNotFoundException;
+    void load(final String fileContents) throws IOException;
 
     void add(T entry);
 
@@ -29,4 +30,6 @@ public interface EntryRepo<T extends Entry> {
     void setNamespace(String namespace);
 
     void setIdentifier(String type);
+
+    List<T> parse(String string);
 }

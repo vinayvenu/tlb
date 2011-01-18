@@ -2,6 +2,7 @@ package tlb.server.repo;
 
 import tlb.TlbConstants;
 import tlb.domain.TimeProvider;
+import tlb.utils.FileUtil;
 import tlb.utils.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 
@@ -77,7 +78,7 @@ public class EntryRepoFactory implements Runnable {
         });
     }
 
-    public SuiteTimeRepo createSuiteTimeRepo(final String namespace, final String version) throws ClassNotFoundException, IOException {
+    public SuiteTimeRepo createSuiteTimeRepo(final String namespace, final String version) throws IOException {
         return (SuiteTimeRepo) findOrCreate(namespace, version, SUITE_TIME, new Creator<SuiteTimeRepo>() {
             public SuiteTimeRepo create() {
                 return new SuiteTimeRepo(timeProvider);
@@ -93,7 +94,7 @@ public class EntryRepoFactory implements Runnable {
         });
     }
 
-    EntryRepo findOrCreate(String namespace, String version, String type, Creator<? extends EntryRepo> creator) throws IOException, ClassNotFoundException {
+    EntryRepo findOrCreate(String namespace, String version, String type, Creator<? extends EntryRepo> creator) throws IOException {
         String identifier = name(namespace, version, type);
         synchronized (repoId(identifier)) {
             EntryRepo repo = repos.get(identifier);
@@ -106,7 +107,8 @@ public class EntryRepoFactory implements Runnable {
 
                 File diskDump = dumpFile(identifier);
                 if (diskDump.exists()) {
-                    repo.load(new FileReader(diskDump));
+                    final FileReader reader = new FileReader(diskDump);
+                    repo.load(FileUtil.readIntoString(new BufferedReader(reader)));
                 }
             }
             return repo;
@@ -133,13 +135,24 @@ public class EntryRepoFactory implements Runnable {
 
     public void run() {
         for (String identifier : repos.keySet()) {
+            FileWriter writer = null;
             try {
                 //don't care about a couple entries not being persisted(at teardown), as client is capable of balancing on averages(treat like new suites)
                 synchronized (repoId(identifier)) {
-                    repos.get(identifier).diskDump(new FileWriter(dumpFile(identifier)));
+                    writer = new FileWriter(dumpFile(identifier));
+                    String dump = repos.get(identifier).diskDump();
+                    writer.write(dump);
                 }
             } catch (IOException e) {
                 logger.log(Level.WARNING, String.format("disk dump of %s failed, tlb server may not be able to perform data dependent on next reboot.", identifier), e);
+            } finally {
+                try {
+                    if (writer != null) {
+                        writer.close();
+                    }
+                } catch (IOException e) {
+                    logger.log(Level.WARNING, String.format("closing of disk dump file of %s failed, tlb server may not be able to perform data dependent on next reboot.", identifier), e);
+                }
             }
         }
     }

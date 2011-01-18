@@ -4,7 +4,6 @@ import tlb.domain.SuiteLevelEntry;
 import tlb.domain.TimeProvider;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -39,9 +38,9 @@ public abstract class VersioningEntryRepo<T extends SuiteLevelEntry> extends Sui
         }
     }
 
-    public abstract VersioningEntryRepo<T> getSubRepo(String versionIdentifier) throws IOException, ClassNotFoundException;
+    public abstract VersioningEntryRepo<T> getSubRepo(String versionIdentifier) throws IOException;
 
-    public Collection<T> list(String versionIdentifier) throws IOException, ClassNotFoundException {
+    public Collection<T> list(String versionIdentifier) throws IOException {
         VersioningEntryRepo<T> version;
         synchronized (versionIdentifier.intern()) {
             version = versions.get(versionIdentifier);
@@ -59,8 +58,8 @@ public abstract class VersioningEntryRepo<T extends SuiteLevelEntry> extends Sui
     }
 
     @Override
-    public final void load(Reader reader) throws IOException, ClassNotFoundException {
-        super.load(reader);
+    public final void load(final String fileContents) throws IOException {
+        super.load(fileContents);
         loadedData = true;
     }
 }

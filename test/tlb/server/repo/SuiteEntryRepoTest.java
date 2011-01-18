@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import tlb.TestUtil;
 import tlb.TlbConstants;
-import tlb.domain.SubsetSizeEntry;
 import tlb.domain.SuiteLevelEntry;
 import tlb.domain.TimeProvider;
 import tlb.utils.FileUtil;
@@ -13,7 +12,6 @@ import tlb.utils.SystemEnvironment;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
@@ -40,9 +38,8 @@ public class SuiteEntryRepoTest {
                         return null;
                     }
 
-                    @Override
-                    protected TestCaseRepo.TestCaseEntry parseSingleEntry(String string) {
-                        return TestCaseRepo.TestCaseEntry.parseSingleEntry(string);
+                    public List<TestCaseRepo.TestCaseEntry> parse(String string) {
+                        return TestCaseRepo.TestCaseEntry.parse(string);
                     }
                 };
             }
@@ -87,9 +84,8 @@ public class SuiteEntryRepoTest {
     public void shouldDumpDataOnGivenOutputStream() throws IOException, ClassNotFoundException {
         testCaseRepo.update(parseSingleEntry("shouldBar#Bar"));
         testCaseRepo.update(parseSingleEntry("shouldFoo#Foo"));
-        StringWriter writer = new StringWriter();
-        testCaseRepo.diskDump(writer);
-        assertThat(writer.toString(), is("shouldBar=shouldBar#Bar\nshouldFoo=shouldFoo#Foo\n"));
+        String dump = testCaseRepo.diskDump();
+        assertThat(dump, is("shouldBar#Bar\nshouldFoo#Foo\n"));
     }
 
     @Test
@@ -97,9 +93,10 @@ public class SuiteEntryRepoTest {
         File tempFile = File.createTempFile("temp-file", "something");
         tempFile.deleteOnExit();
 
-        FileUtils.writeStringToFile(tempFile, "shouldBar=shouldBar#Bar\nshouldFoo=shouldFoo#Foo\n");
+        FileUtils.writeStringToFile(tempFile, "shouldBar#Bar\nshouldFoo#Foo\n");
 
-        testCaseRepo.load(new FileReader(tempFile));
+        final FileReader reader = new FileReader(tempFile);
+        testCaseRepo.load(FileUtil.readIntoString(new BufferedReader(reader)));
         assertThat(TestUtil.sortedList(testCaseRepo.list()), is(listOf(new TestCaseRepo.TestCaseEntry("shouldBar", "Bar"), new TestCaseRepo.TestCaseEntry("shouldFoo", "Foo"))));
     }
 

@@ -4,6 +4,8 @@ import tlb.domain.SuiteLevelEntry;
 import tlb.domain.TimeProvider;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @understands storage and retrival of test case to test suite mappings
@@ -13,9 +15,8 @@ public class TestCaseRepo extends VersioningEntryRepo<TestCaseRepo.TestCaseEntry
         super(timeProvider);
     }
 
-    @Override
-    protected TestCaseEntry parseSingleEntry(String string) {
-        return TestCaseEntry.parseSingleEntry(string);
+    public List<TestCaseEntry> parse(String string) {
+        return TestCaseEntry.parse(string);
     }
 
     public static class TestCaseEntry implements SuiteLevelEntry {
@@ -64,10 +65,18 @@ public class TestCaseRepo extends VersioningEntryRepo<TestCaseRepo.TestCaseEntry
             result = 31 * result + (suiteName != null ? suiteName.hashCode() : 0);
             return result;
         }
+
+        public static List<TestCaseEntry> parse(String string) {
+            List<TestCaseEntry> parsed = new ArrayList<TestCaseEntry>();
+            for (String line : string.split("\n")) {
+                parsed.add(TestCaseEntry.parseSingleEntry(line));
+            }
+            return parsed;
+        }
     }
 
     @Override
-    public TestCaseRepo getSubRepo(String versionIdentifier) throws IOException, ClassNotFoundException {
+    public TestCaseRepo getSubRepo(String versionIdentifier) throws IOException {
         return (TestCaseRepo) factory.findOrCreate(namespace, versionIdentifier, "test_case", new EntryRepoFactory.Creator<TestCaseRepo>() {
             public TestCaseRepo create() {
                 return new TestCaseRepo(new TimeProvider());
