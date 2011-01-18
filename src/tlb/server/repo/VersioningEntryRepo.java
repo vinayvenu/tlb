@@ -26,7 +26,7 @@ public abstract class VersioningEntryRepo<T extends SuiteLevelEntry> extends Sui
     }
 
     public void purgeOldVersions(int versionLifeInDays) throws IOException {
-        final GregorianCalendar cal = timeProvider.now();
+        GregorianCalendar cal = timeProvider.now();
         cal.add(GregorianCalendar.DAY_OF_WEEK, -versionLifeInDays);//this should be parametrized
         final Date yesterday = cal.getTime();
         for (String versionKeys : versions.keySet()) {

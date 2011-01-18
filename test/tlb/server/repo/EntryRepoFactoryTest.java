@@ -3,8 +3,6 @@ package tlb.server.repo;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
 import tlb.TestUtil;
 import tlb.TlbConstants;
 import tlb.domain.SubsetSizeEntry;
@@ -13,7 +11,10 @@ import tlb.domain.SuiteTimeEntry;
 import tlb.domain.TimeProvider;
 import tlb.utils.SystemEnvironment;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.*;
 
 import static org.hamcrest.core.Is.is;
@@ -21,15 +22,10 @@ import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.junit.matchers.JUnitMatchers.hasItems;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static tlb.server.repo.EntryRepoFactory.LATEST_VERSION;
-import com.googlecode.junit.ext.RunIf;
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.checkers.OSChecker;
 
 
-@RunWith(JunitExtRunner.class)
 public class EntryRepoFactoryTest {
     private EntryRepoFactory factory;
     private File baseDir;
@@ -98,7 +94,7 @@ public class EntryRepoFactoryTest {
         verify(repoBar).diskDump();
         verify(repoBaz).diskDump();
     }
-    
+
     @Test
     public void shouldBeAbleToLoadFromDumpedFile() throws ClassNotFoundException, IOException, InterruptedException {
         SubsetSizeRepo subsetSizeRepo = factory.createSubsetRepo("foo", LATEST_VERSION);
@@ -124,7 +120,7 @@ public class EntryRepoFactoryTest {
         assertThat(otherFactoryInstance.createSuiteResultRepo("baz", LATEST_VERSION).list().size(), is(2));
         assertThat(otherFactoryInstance.createSuiteResultRepo("baz", LATEST_VERSION).list(), hasItems(new SuiteResultEntry("foo.bar.Baz", true), new SuiteResultEntry("bar.baz.Quux", false)));
     }
-    
+
     @Test
     public void shouldLogExceptionsButContinueDumpingRepositories() throws InterruptedException, IOException {
         EntryRepo repoFoo = mock(EntryRepo.class);
@@ -150,12 +146,12 @@ public class EntryRepoFactoryTest {
             assertThat(e.getMessage(), is("Hook previously registered"));
         }
     }
-    
+
     @Test
     public void shouldFeedTheDiskDumpContentsToSubsetRepo() {
         TestUtil.createTempFolder();
     }
-    
+
     @Test
     public void shouldUseWorkingDirAsDiskStorageRootWhenNotGiven() throws IOException, ClassNotFoundException {
         final File workingDirStorage = new File(TlbConstants.Server.TLB_STORE_DIR);
@@ -175,7 +171,7 @@ public class EntryRepoFactoryTest {
         SubsetSizeRepo repo = factory.createSubsetRepo("foo", LATEST_VERSION);
         assertThat(repo.list(), is((Collection<SubsetSizeEntry>) Arrays.asList(new SubsetSizeEntry(1), new SubsetSizeEntry(2), new SubsetSizeEntry(3))));
     }
-    
+
     @Test
     public void shouldNotLoadDiskDumpWhenUsingARepoThatIsAlreadyCreated() throws ClassNotFoundException, IOException {
         SubsetSizeRepo fooRepo = factory.createSubsetRepo("foo", LATEST_VERSION);
@@ -203,16 +199,22 @@ public class EntryRepoFactoryTest {
     }
 
     @Test
-    @Ignore
     public void shouldPurgeDiskDumpAndRepositoryOlderThanGivenTime() throws IOException, ClassNotFoundException, InterruptedException {
-        final TimeProvider timeProvider = mock(TimeProvider.class);
+        final GregorianCalendar[] cal = new GregorianCalendar[1];
+        final TimeProvider timeProvider = new TimeProvider() {
+            @Override
+            public GregorianCalendar now() {
+                GregorianCalendar gregorianCalendar = cal[0];
+                return gregorianCalendar == null ? null : (GregorianCalendar) gregorianCalendar.clone();
+            }
+        };
         final EntryRepoFactory factory = new EntryRepoFactory(baseDir, timeProvider, 1);
 
         SuiteTimeRepo repo = factory.createSuiteTimeRepo("foo", LATEST_VERSION);
         repo.update(new SuiteTimeEntry("foo.bar.Baz", 15));
         repo.update(new SuiteTimeEntry("foo.bar.Quux", 80));
 
-        when(timeProvider.now()).thenReturn(new GregorianCalendar(2010, 6, 7, 0, 37, 12));
+        cal[0] = new GregorianCalendar(2010, 6, 7, 0, 37, 12);
         Collection<SuiteTimeEntry> oldList = repo.list("old");
         assertThat(oldList.size(), is(2));
         assertThat(oldList, hasItem(new SuiteTimeEntry("foo.bar.Baz", 15)));
@@ -227,7 +229,7 @@ public class EntryRepoFactoryTest {
         assertThat(oldList, hasItem(new SuiteTimeEntry("foo.bar.Quux", 80)));
 
 
-        when(timeProvider.now()).thenReturn(new GregorianCalendar(2010, 6, 9, 0, 37, 12));
+        cal[0] = new GregorianCalendar(2010, 6, 9, 0, 37, 12);
         Collection<SuiteTimeEntry> notSoOld = repo.list("not_so_old");
         assertThat(notSoOld.size(), is(3));
         assertThat(notSoOld, hasItem(new SuiteTimeEntry("foo.bar.Baz", 20)));
@@ -240,7 +242,7 @@ public class EntryRepoFactoryTest {
         exitHook.start();
         exitHook.join();
 
-        when(timeProvider.now()).thenReturn(new GregorianCalendar(2010, 6, 10, 0, 37, 12));
+        cal[0] = new GregorianCalendar(2010, 6, 10, 0, 37, 12);
         factory.purgeVersionsOlderThan(2);
 
         oldList = repo.list("old");
