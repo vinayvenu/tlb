@@ -4,6 +4,7 @@ import tlb.domain.SuiteTimeEntry;
 import tlb.domain.TimeProvider;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @understands storage and retrival of time that each suite took to run
@@ -15,12 +16,11 @@ public class SuiteTimeRepo extends VersioningEntryRepo<SuiteTimeEntry> {
     }
 
     @Override
-    public SuiteTimeRepo getSubRepo(String versionIdentifier) throws IOException, ClassNotFoundException {
+    public SuiteTimeRepo getSubRepo(String versionIdentifier) throws IOException {
         return factory.createSuiteTimeRepo(namespace, versionIdentifier);
     }
 
-    @Override
-    protected SuiteTimeEntry parseSingleEntry(String string) {
-        return SuiteTimeEntry.parseSingleEntry(string);
+    public List<SuiteTimeEntry> parse(String string) {
+        return SuiteTimeEntry.parse(string);
     }
 }
