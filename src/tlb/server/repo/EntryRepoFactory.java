@@ -18,7 +18,7 @@ import static tlb.TlbConstants.Server.TLB_STORE_DIR;
  * @understands creation of EntryRepo
  */
 public class EntryRepoFactory implements Runnable {
-    public static final String DELIMITER = "|";
+    public static final String DELIMITER = "_";
     public static final String SUBSET_SIZE = "subset_size";
     public static final String SUITE_TIME = "suite_time";
     public static final String SUITE_RESULT = "suite_result";

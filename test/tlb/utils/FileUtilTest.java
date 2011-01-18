@@ -5,6 +5,7 @@ import tlb.TlbConstants;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -16,8 +17,10 @@ import java.io.File;
 import java.io.IOException;
 
 import com.googlecode.junit.ext.RunIf;
+import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.checkers.OSChecker;
 
+@RunWith(JunitExtRunner.class)
 public class FileUtilTest {
     private FileUtil fileUtil;
     private TestUtil.LogFixture logFixture;
@@ -30,7 +33,7 @@ public class FileUtilTest {
     public void setUp() throws Exception {
         javaTmpDirParent = System.getProperty("java.io.tmpdir");
         javaTmpDir = new SystemEnvironment(new HashMap<String, String>()).tmpDir();
-        overriddenTmpDirParent = javaTmpDir + "/tlb_dir/foo/bar";
+        overriddenTmpDirParent = new File(javaTmpDir + "/tlb_dir/foo/bar").getPath();
 
         logFixture = new TestUtil.LogFixture();
 
@@ -39,7 +42,7 @@ public class FileUtilTest {
         envMap.put(TlbConstants.TLB_TMP_DIR, overriddenTmpDirParent);
         SystemEnvironment env = new SystemEnvironment(envMap);
         fileUtil = new FileUtil(env);
-        overriddenTmpDir = overriddenTmpDirParent + "/" + env.getDigest();
+        overriddenTmpDir = new File(overriddenTmpDirParent + "/" + env.getDigest()).getPath();
         deleteOverriddenTmpDirIfExists();
     }
 
@@ -122,7 +125,7 @@ public class FileUtilTest {
     @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
     public void shouldFailIfDirCouldNotBeCreated() throws Exception{
         HashMap<String, String> envMap = new HashMap<String, String>();
-        String tlbTmpDirPath = "/var/lib/tlb_data";
+        String tlbTmpDirPath = new File("/var/lib/tlb_data").getPath();
         envMap.put(TlbConstants.TLB_TMP_DIR, tlbTmpDirPath);
         SystemEnvironment env = new SystemEnvironment(envMap);
         FileUtil util = new FileUtil(env);
@@ -134,7 +137,7 @@ public class FileUtilTest {
         } catch (Exception e) {
             //ignore
         }
-        String tlbActualTmpDir = tlbTmpDirPath + "/" + env.getDigest();
+        String tlbActualTmpDir = new File(tlbTmpDirPath + "/" + env.getDigest()).getPath();
         logFixture.assertHeard(String.format("using %s as tlb temp directory", tlbTmpDirPath));
         logFixture.assertHeard(String.format("checking for existance of directory %s as tlb tmpdir", tlbActualTmpDir));
         logFixture.assertHeard(String.format("directory %s doesn't exist, creating it now", tlbActualTmpDir));

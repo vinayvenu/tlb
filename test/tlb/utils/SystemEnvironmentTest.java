@@ -6,13 +6,20 @@ import static org.junit.Assert.assertThat;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.googlecode.junit.ext.RunIf;
+import com.googlecode.junit.ext.JunitExtRunner;
+import com.googlecode.junit.ext.checkers.OSChecker;
+
+@RunWith(JunitExtRunner.class)
 public class SystemEnvironmentTest {
     
     @Test
@@ -53,6 +60,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
+    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
     public void shouldGetSystemEnvironmentVairableWhenNoMapPassed() throws Exception{
         SystemEnvironment env = new SystemEnvironment();
         assertThat(env.val("HOME"), is(System.getProperty("user.home")));
@@ -97,6 +105,6 @@ public class SystemEnvironmentTest {
         HashMap<String, String> env = new HashMap<String, String>();
         env.put("foo", "bar");
         SystemEnvironment sysEnv = new SystemEnvironment(env);
-        assertThat(sysEnv.tmpDir(), is(System.getProperty("java.io.tmpdir") + "/" + sysEnv.getDigest()));
+        assertThat(sysEnv.tmpDir(), is(new File(System.getProperty("java.io.tmpdir") + "/" + sysEnv.getDigest()).getPath()));
     }
 }

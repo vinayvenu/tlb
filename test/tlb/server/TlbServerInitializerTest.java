@@ -119,8 +119,8 @@ public class TlbServerInitializerTest {
     
     @Test
     public void shouldEscapeTheEscapeCharInName() {
-        assertThat(EntryRepoFactory.name("foo", "bar", "baz"), is("foo|bar|baz"));
-        assertThat(EntryRepoFactory.name("fo|o", "b|ar", "baz|"), is("fo||o|b||ar|baz||"));
+        assertThat(EntryRepoFactory.name("foo", "bar", "baz"), is("foo_bar_baz"));
+        assertThat(EntryRepoFactory.name("fo_o", "b_ar_", "baz|"), is("fo__o_b__ar___baz|"));
     }
 
     @Test

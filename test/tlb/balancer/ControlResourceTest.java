@@ -6,6 +6,7 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.restlet.Component;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -28,7 +29,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
-
+import com.googlecode.junit.ext.RunIf;
+import com.googlecode.junit.ext.JunitExtRunner;
+import com.googlecode.junit.ext.checkers.OSChecker;
+                 
+@RunWith(JunitExtRunner.class)
 public class ControlResourceTest {
     protected Request req;
     protected Response res;
@@ -84,6 +89,7 @@ public class ControlResourceTest {
     }
 
     @Test
+    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
     public void shouldStopServer() throws InterruptedException, IOException {
         final String port = unpriviledgedPort();
         final File buildFile = new File("build.xml");

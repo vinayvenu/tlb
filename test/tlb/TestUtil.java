@@ -43,7 +43,7 @@ public class TestUtil {
     }
 
     public static TlbFileResource tlbFileResource(String dir, String name) {
-        JunitFileResource fileResource = new JunitFileResource(new Project(), dir + File.separator + name + ".class");
+        JunitFileResource fileResource = new JunitFileResource(new Project(), new File(dir + "/" + name + ".class").getPath());
         fileResource.setBaseDir(new File("."));
         return fileResource;
     }
