@@ -167,6 +167,8 @@
         <mkdir dir="${archive_dir}" />
         <copy todir="${archive_dir}">
             <fileset dir="${basedir}" includes="*.sh" />
+            <fileset dir="${basedir}" includes="*.bat" />
+            <fileset dir="${basedir}" includes="*.cmd" />
             <fileset dir="${target.dir}" includes="${tlb.all.jar.name}" />
         </copy>
         <tar basedir="${dest_dir}" destfile="${tar}"/>
