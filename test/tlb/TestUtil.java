@@ -17,7 +17,10 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -242,22 +245,55 @@ public class TestUtil {
         return file;
     }
 
-    public static Object deref(String fieldName, Object fromObject) throws IllegalAccessException {
-        Class klass = fromObject.getClass();
-        Field field = getField(fieldName, klass);
-        field.setAccessible(true);
-        return field.get(fromObject);
+    public static Object invoke(final String methodName, final Object fromObject, final Object... args) throws IllegalAccessException {
+        final Class[] types = types(args);
+        return getSth(fromObject.getClass(), new Getter<Method>() {
+            public Object eval(Method method) throws InvocationTargetException, IllegalAccessException {
+                return method.invoke(fromObject, args);
+            }
+
+            public Method find(Class klass) throws NoSuchMethodException {
+                return klass.getDeclaredMethod(methodName, types);
+            }
+        });
     }
 
-    private static Field getField(String fieldName, Class klass) {
+    private static Class[] types(Object[] args) {
+        final Class[] types = new Class[args.length];
+        for (int i = 0; i < args.length; i++) {
+            types[i] = args[i].getClass();
+        }
+        return types;
+    }
+
+    public static Object deref(final String fieldName, final Object fromObject) throws IllegalAccessException {
+        return getSth(fromObject.getClass(), new Getter<Field>() {
+            public Object eval(Field field) throws IllegalAccessException {
+                return field.get(fromObject);
+            }
+
+            public Field find(Class klass) throws NoSuchFieldException {
+                return klass.getDeclaredField(fieldName);
+            }
+        });
+    }
+
+    private static Object getSth(Class klass, Getter getter) {
         try {
-            return klass.getDeclaredField(fieldName);
-        } catch (NoSuchFieldException e) {
+            AccessibleObject accessibleObject = getter.find(klass);
+            accessibleObject.setAccessible(true);
+            return getter.eval(accessibleObject);
+        } catch (Exception e) {
             Class superKlass = klass.getSuperclass();
             if (superKlass.equals(Object.class)) {
-                throw new RuntimeException(String.format("field %s could not be found in any of the classes in the hirarchy", fieldName), e);
+                throw new RuntimeException("Matching object could not be found in any of the classes in the hirarchy", e);
             }
-            return getField(fieldName, superKlass);
+            return getSth(superKlass, getter);
         }
+    }
+
+    private static interface Getter<T extends AccessibleObject> {
+        Object eval(T t) throws Exception;
+        T find(Class klass) throws Exception;
     }
 }

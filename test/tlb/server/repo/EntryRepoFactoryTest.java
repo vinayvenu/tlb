@@ -20,9 +20,12 @@ import java.util.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.mockito.Mockito.*;
+import static tlb.TestUtil.deref;
+import static tlb.TestUtil.invoke;
 import static tlb.server.repo.EntryRepoFactory.LATEST_VERSION;
 
 
@@ -284,5 +287,21 @@ public class EntryRepoFactoryTest {
                 return repo;
             }
         });
+    }
+
+    @Test
+    public void shouldCheckRepoExistenceBeforeTryingPurge() throws IOException, IllegalAccessException {
+        factory.createSuiteTimeRepo("foo", LATEST_VERSION);
+        Map<String, EntryRepo> repos = (Map<String, EntryRepo>) deref("repos", factory);
+        List<String> keys = new ArrayList<String>(repos.keySet());
+        assertThat(keys.size(), is(1));
+        String fooKey = keys.get(0);
+        repos.clear();
+        try {
+            factory.purge(fooKey);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Should not fail when trying to purge already purged entry");
+        }
     }
 }

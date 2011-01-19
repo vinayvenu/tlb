@@ -48,7 +48,8 @@ public class EntryRepoFactory implements Runnable {
     public void purge(String identifier) throws IOException {
         synchronized (repoId(identifier)) {
             repos.remove(identifier);
-            FileUtils.forceDelete(dumpFile(identifier));
+            File file = dumpFile(identifier);
+            if (file.exists()) FileUtils.forceDelete(file);
         }
     }
 
@@ -139,9 +140,12 @@ public class EntryRepoFactory implements Runnable {
             try {
                 //don't care about a couple entries not being persisted(at teardown), as client is capable of balancing on averages(treat like new suites)
                 synchronized (repoId(identifier)) {
-                    writer = new FileWriter(dumpFile(identifier));
-                    String dump = repos.get(identifier).diskDump();
-                    writer.write(dump);
+                    EntryRepo entryRepo = repos.get(identifier);
+                    if (entryRepo != null) {
+                        writer = new FileWriter(dumpFile(identifier));
+                        String dump = entryRepo.diskDump();
+                        writer.write(dump);
+                    }
                 }
             } catch (IOException e) {
                 logger.log(Level.WARNING, String.format("disk dump of %s failed, tlb server may not be able to perform data dependent on next reboot.", identifier), e);
