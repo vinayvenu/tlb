@@ -3,6 +3,8 @@ package tlb.splitter;
 import tlb.TlbSuiteFile;
 import tlb.domain.SuiteTimeEntry;
 import tlb.service.TalkToService;
+import tlb.splitter.timebased.Bucket;
+import tlb.splitter.timebased.TestFile;
 import tlb.utils.FileUtil;
 import tlb.utils.SystemEnvironment;
 
@@ -99,43 +101,10 @@ public class TimeBasedTestSplitterCriteria extends JobFamilyAwareSplitterCriteri
 
     private List<TlbSuiteFile> resourcesFrom(Bucket bucket) {
         ArrayList<TlbSuiteFile> resources = new ArrayList<TlbSuiteFile>();
-        for (TlbSuiteFile file : bucket.files) {
+        for (TlbSuiteFile file : bucket.files()) {
             resources.add(file);
         }
         return resources;
     }
 
-    private class Bucket implements Comparable<Bucket> {
-
-        int partition;
-        Double time = 0.0;
-        List<TlbSuiteFile> files = new ArrayList<TlbSuiteFile>();
-
-        public Bucket(int partition) {
-            this.partition = partition;
-        }
-
-        public int compareTo(Bucket o) {
-            return time.compareTo(o.time);
-        }
-
-        public void add(TestFile testFile) {
-            files.add(testFile.fileName);
-            time += testFile.time;
-        }
-    }
-
-    private class TestFile implements Comparable<TestFile> {
-        TlbSuiteFile fileName;
-        Double time;
-
-        public TestFile(TlbSuiteFile fileName, Double time) {
-            this.fileName = fileName;
-            this.time = time;
-        }
-
-        public int compareTo(TestFile o) {
-            return o.time.compareTo(time);
-        }
-    }
 }
