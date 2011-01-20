@@ -196,7 +196,7 @@ public class TimeBasedTestSplitterCriteriaTest {
         logFixture.assertHeard("encountered 2 new files which don't have historical time data, used average time [ 3.0 ] to balance");
         logFixture.assertHeard("assigned total of 4 files to [ job-1 ]");
         assertThat(filteredResources.size(), is(4));
-        assertThat(filteredResources, hasItems(second, first, third, secondNew));
+        assertThat(filteredResources, hasItems(second, firstNew, first, third));
 
         when(talkToService.partitionNumber()).thenReturn(2);
         criteria = new TimeBasedTestSplitterCriteria(talkToService, TestUtil.initEnvironment("job-2"));
@@ -210,7 +210,7 @@ public class TimeBasedTestSplitterCriteriaTest {
         logFixture.assertHeard("encountered 2 new files which don't have historical time data, used average time [ 3.0 ] to balance", 2);
         logFixture.assertHeard("assigned total of 3 files to [ job-2 ]");
         assertThat(filteredResources.size(), is(3));
-        assertThat(filteredResources, hasItems(fourth, fifth, firstNew));
+        assertThat(filteredResources, hasItems(fourth, fifth, secondNew));
     }
 
     @Test
