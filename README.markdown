@@ -1,3 +1,4 @@
+#WARNING: THIS HAS BEEN FORKED JUST SO I CAN TRY OUT A FEW THINGS. PLANNING TO THROW IT AWAY ONCE DONE. 
 # Rationale:
 A typical problem that teams doing CI (continuous integration) try and solve is to get the build time to an acceptable amount so that frequent checkins are possible. However, with a steady increase in the number of tests, the time taken to run these tests on every checkin keeps increasing. Solving this problem in the build is almost always non trivial. This is where parallelizing builds comes handy. Throwing hardware at this problem is one of the potential solutions to get build time under acceptable limits.
 
