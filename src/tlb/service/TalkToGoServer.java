@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
  */
 public class TalkToGoServer extends SmoothingTalkToService {
     private static final Logger logger = Logger.getLogger(TalkToGoServer.class.getName());
+    private static final String DEFAULT_STAGE_FEED_SEARCH_DEPTH = "10";
 
     private final HttpAction httpAction;
     private static final String JOB_NAME = "name";
@@ -202,6 +203,13 @@ public class TalkToGoServer extends SmoothingTalkToService {
 
     @SuppressWarnings({"unchecked"})
     private String lastRunStageDetailUrl(String stageFeedUrl) {
+        return findLastRunStageDetailUrl(stageFeedUrl, Integer.parseInt(environment.val(TlbConstants.Go.MAX_STAGE_FEED_SEARCH_DEPTH, DEFAULT_STAGE_FEED_SEARCH_DEPTH)), 0);
+    }
+
+    private String findLastRunStageDetailUrl(String stageFeedUrl, int digNoMoreThan, int current) {
+        if (digNoMoreThan == current) {
+            throw new IllegalStateException(String.format("Couldn't find a historical run for stage in '%s' pages of stage feed.", digNoMoreThan));
+        }
         Element stageFeedPage = rootFor(stageFeedUrl);
         List<Element> list = stageFeedPage.selectNodes("//a:entry");
         for (Element element : list) {
@@ -210,7 +218,7 @@ public class TalkToGoServer extends SmoothingTalkToService {
                 return element.selectSingleNode("./a:link/@href").getText();
             }
         }
-        return lastRunStageDetailUrl(stageFeedPage.selectSingleNode("//a:link[@rel='next']/@href").getText());
+        return findLastRunStageDetailUrl(stageFeedPage.selectSingleNode("//a:link[@rel='next']/@href").getText(), digNoMoreThan, ++current);
     }
 
     private boolean sameStage(String stageLocator) {

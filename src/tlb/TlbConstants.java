@@ -14,6 +14,7 @@ public interface TlbConstants {
         static final String GO_STAGE_COUNTER = "GO_STAGE_COUNTER";
         static final String GO_PIPELINE_COUNTER = "GO_PIPELINE_COUNTER";
         static final String GO_PIPELINE_LABEL = "GO_PIPELINE_LABEL";
+        static final String MAX_STAGE_FEED_SEARCH_DEPTH = "MAX_STAGE_FEED_SEARCH_DEPTH";
     }
 
     public interface TlbServer {

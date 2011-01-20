@@ -395,6 +395,48 @@ public class TalkToGoServerTest {
         }
     }
 
+    @Test
+    public void shouldStopAtDefinedDepthWhenTryingToFindHistoricalStageInstance() throws IOException, URISyntaxException {
+        HttpAction action = mock(HttpAction.class);
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml")).thenReturn(fileContents("resources/stages_p1.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=23")).thenReturn(fileContents("resources/stages_p2.xml"));
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=19")).thenReturn(fileContents("resources/stages_p1.xml"));
+        Map<String, String> map = initEnvMap("http://test.host:8153/go");
+        map.put(TlbConstants.Go.GO_PIPELINE_NAME, "pipeline-foo");
+        map.put(TlbConstants.Go.GO_PIPELINE_LABEL, "pipeline-foo-3");
+        map.put(TlbConstants.Go.GO_PIPELINE_COUNTER, "3");
+        map.put(TlbConstants.Go.GO_STAGE_NAME, "fun-stage");
+        TalkToGoServer service = new TalkToGoServer(new SystemEnvironment(map), action);
+        try {
+            service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
+            fail("should have failed as historical stage run does not exist in defined depth");
+        } catch (IllegalStateException e) {
+            assertThat(e, is(IllegalStateException.class));
+            assertThat(e.getMessage(), is("Couldn't find a historical run for stage in '10' pages of stage feed."));
+        }
+
+        map.put(TlbConstants.Go.MAX_STAGE_FEED_SEARCH_DEPTH, "17");
+        service = new TalkToGoServer(new SystemEnvironment(map), action);
+        try {
+            service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
+            fail("should have failed as historical stage run does not exist in defined depth");
+        } catch (IllegalStateException e) {
+            assertThat(e, is(IllegalStateException.class));
+            assertThat(e.getMessage(), is("Couldn't find a historical run for stage in '17' pages of stage feed."));
+        }
+
+        map.put(TlbConstants.Go.MAX_STAGE_FEED_SEARCH_DEPTH, "2");
+        when(action.get("http://test.host:8153/go/api/pipelines/pipeline-foo/stages.xml?before=19")).thenThrow(new AssertionError("requested more pages than permitted"));
+        service = new TalkToGoServer(new SystemEnvironment(map), action);
+        try {
+            service.getLastRunTestTimes(Arrays.asList("firefox-1", "firefox-2"));
+            fail("should have failed as historical stage run does not exist in defined depth");
+        } catch (IllegalStateException e) {
+            assertThat(e, is(IllegalStateException.class));
+            assertThat(e.getMessage(), is("Couldn't find a historical run for stage in '2' pages of stage feed."));
+        }
+    }
+
     private SystemEnvironment initEnvironment(String url) {
         return new SystemEnvironment(initEnvMap(url));
     }
