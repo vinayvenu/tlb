@@ -1,1 +1,0 @@
-START "Test Load Balancer Server" /MIN server.cmd
